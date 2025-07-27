@@ -1,0 +1,189 @@
+body {
+  background-color: #fefefe;
+  font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  margin: 0;
+  color: #2c3e50;
+}
+
+.profile__container {
+  display: flex;
+}
+
+.profile__information {
+  width: 25em;
+  border: 1px solid #e67e22;
+  height: 14.5em;
+  border-radius: 1.5rem;
+  margin-right: 4rem;
+}
+
+.profile__information h2{
+  font-size: 2rem;
+  font-weight: 700;
+  color: #e67e22;
+  margin-bottom: 0.5rem;
+  margin-top: 1.5rem;
+  text-align: center; 
+}
+
+.profile__title {
+  border-bottom: 1px solid rgb(250, 127, 26);
+}
+
+.profile__information button {
+  display: block;
+  justify-self: center;
+  border-radius: 2rem;
+  font-size: 1.2em;
+  padding: 0.8em;
+  border: none;
+  color: rgb(250, 127, 26);
+  margin-top: 1em;
+  font-weight: bold;
+  background-color: #f9f9f9;
+  cursor: pointer;
+  width: 12em;
+}
+
+.profile__information button:hover {
+  background-color: rgb(250, 127, 26);
+  color: #fff6ed;
+}
+
+.profile__information a {
+  text-decoration: none;
+}
+
+.profile-section {
+  width: 65em;
+}
+
+.client-profile-page {
+  max-width: 80em;
+  height: 35em;
+  margin: 2em auto 0 10em;
+  background: #ffffff;
+  border-radius: 1.25rem;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.07);
+}
+
+.client-profile-page h2 {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #e67e22;
+  margin: 1.5rem 0 0.5rem 1.5rem;
+  text-align: center;
+}
+
+.profile-background {
+  background-image: url("/images/profile-background.png");
+  border-top-left-radius: 1.25rem;
+  border-top-right-radius: 1.25rem;
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: bottom;
+}
+
+.admin-profile-page {
+  max-width: 75em;
+  height: 33.5em;
+  margin: 2rem auto;
+  background: #ffffff;
+  border-radius: 1.25rem;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.07);
+  padding-bottom: 2rem;
+}
+
+.admin-profile-page img {
+  width: 128px;
+  height: 128px;
+  object-fit: cover;
+  border-radius: 50%;
+  border: 4px solid #f39c12;
+  margin: 1.5rem 0 1.5rem 1.5rem;
+}
+
+.admin-profile-page h2 {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #e67e22;
+  margin: 1.5rem 1.5rem 0.5rem;
+}
+
+.admin-profile-page .button-group {
+  display: flex;
+  gap: 1rem;
+  margin: 0 1.5rem 1rem;
+}
+
+.admin-profile-page .button-group button {
+  background-color: #e67e22;
+  color: white;
+  padding: 0.6rem 1.2rem;
+  font-size: 1rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 0.6rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.admin-profile-page .button-group button:hover {
+  background-color: #d35400;
+}
+
+.admin-profile-page form {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1rem;
+  margin: 0 1.5rem;
+}
+
+.admin-profile-page label {
+  display: block;
+  margin-bottom: 0.4rem;
+  font-weight: 600;
+  color: #555;
+}
+
+.admin-profile-page .form-input,
+.admin-profile-page input[type="email"],
+.admin-profile-page input[type="text"] {
+  width: 85%;
+  padding: 0.6rem 0.8rem;
+  border: 2px solid #f6c28b;
+  border-radius: 0.5rem;
+  background-color: #fafafa;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+}
+
+.admin-profile-page .form-input:focus,
+.admin-profile-page input[type="email"]:focus,
+.admin-profile-page input[type="text"]:focus {
+  border-color: #e67e22;
+  box-shadow: 0 0 0 3px rgba(230, 126, 34, 0.2);
+  outline: none;
+}
+
+.admin-profile-page p.error-text {
+    color: #e74c3c;
+    font-size: 0.9rem;
+    margin-top: 0.3rem;
+}
+
+@media (max-width: 600px) {
+  .admin-profile-page {
+    padding: 1.5rem 1rem;
+  }
+
+  .admin-profile-page h2,
+  .admin-profile-page .button-group {
+    text-align: center;
+    justify-content: center;
+  }
+
+  .admin-profile-page form {
+    grid-template-columns: 1fr;
+  }
+}

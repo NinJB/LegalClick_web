@@ -1,0 +1,208 @@
+/* Login CSS */
+body {
+    margin: 0;
+    font-family: 'Segoe UI', sans-serif;
+    background: linear-gradient(to right, rgb(250, 127, 26), #ffe46a);
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  span{
+    font-style: italic;
+    color: rgb(247, 86, 86);
+  }
+  
+  .login-container {
+    background: #fff;
+    padding: 2.5rem 3rem;
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    width: 320px;
+    animation: fadeInUp 0.6s ease;
+    transition: all 0.3s ease;
+  }
+  
+  .login-container h2 {
+    text-align: center;
+    color: rgb(250, 127, 26);
+    margin-bottom: 1.5rem;
+    font-weight: 600;
+  }
+  
+  form {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  input {
+    padding: 0.75rem 1rem;
+    margin-bottom: 1rem;
+    border: 2px solid rgba(250, 127, 26, 0.3);
+    border-radius: 10px;
+    transition: border-color 0.3s, box-shadow 0.3s;
+    font-size: 1rem;
+  }
+  
+  input:focus {
+    outline: none;
+    border-color: rgb(250, 127, 26);
+    box-shadow: 0 0 6px rgba(250, 127, 26, 0.5);
+  }
+  
+  button {
+    position: relative;
+    background-color: rgb(250, 127, 26);
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border: 2px solid rgb(250, 127, 26);
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 1rem;
+    overflow: hidden;
+    transition: background-color 0.4s ease, color 0.4s ease, box-shadow 0.3s ease;
+  }
+  
+  button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -75%;
+    width: 50%;
+    height: 100%;
+    background: linear-gradient(
+      120deg,
+      rgba(255, 255, 255, 0) 0%,
+      rgba(255, 255, 255, 0.4) 50%,
+      rgba(255, 255, 255, 0) 100%
+    );
+    transform: skewX(-25deg);
+  }
+  
+  button:hover::before {
+    animation: shine 0.8s ease forwards;
+  }
+  
+  @keyframes shine {
+    0% {
+      left: -75%;
+    }
+    100% {
+      left: 125%;
+    }
+  }
+  
+  button:hover {
+    box-shadow: 0 6px 18px rgba(250, 127, 26, 0.4);
+    background-color: rgb(250, 127, 26);
+    color: white;
+  }
+  
+  
+  .error {
+    color: #d93025;
+    margin-top: 0.5rem;
+    font-weight: 500;
+    animation: shake 0.3s;
+  }
+  
+  .locked {
+    color: #fa7f1a;
+    font-weight: 500;
+    margin-top: 0.5rem;
+  }
+  
+  .warning {
+    color: #e67e22;
+    font-size: 0.95rem;
+    font-weight: 500;
+    margin-top: 0.5rem;
+  }
+  
+  /* Animations */
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  @keyframes shake {
+    0% { transform: translateX(0); }
+    25% { transform: translateX(-4px); }
+    50% { transform: translateX(4px); }
+    75% { transform: translateX(-4px); }
+    100% { transform: translateX(0); }
+  }
+  
+  .homepage__back-button {
+    position: absolute;
+    bottom: 2em;
+    left: 2em;
+    background-color: rgb(250, 127, 26);
+    color: #fff;
+    border: none;
+    padding: 0.75em 1.5em;
+    border-radius: 2em;
+    font-size: 1em;
+    cursor: pointer;
+    font-weight: bold;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    border: 2px solid rgb(250, 127, 26);
+  }
+  
+  .homepage__back-button:hover {
+    background-color: #fafafa;
+    color: rgb(250, 127, 26);
+  }
+
+/********************************************************************************************************************/
+/*****************************************MOBILE RESPONSIVE*************************************************/
+/*PHONES*/
+@media screen and (max-width: 595px){
+  .login{
+    display: flex;
+    justify-content: center;  /* horizontal center */
+    align-items: center;  
+    width: 100%;
+    max-width: 100%;
+    overflow: hidden;
+  }
+
+  .login-container{
+    transform: scale(0.7);
+  }
+}
+
+/*******************************************************************************************************************/
+/*TABLET*/
+@media screen and (min-width: 768px) and (max-width: 768px){
+ .login{
+    display: flex;
+    justify-content: center;  /* horizontal center */
+    align-items: center;  
+    width: 100%;
+    max-width: 100%;
+    overflow: hidden;
+  }
+
+  .login-container{
+    transform: scale(0.8);
+  }
+}
+
+/*******************************************************************************************************************/
+/*SCREEN LAPTOPS // DESKTOPS*/
+@media screen and (min-width: 2560px) and (max-width: 2560px){
+  .login-container{
+    transform: scale(1.5);
+  }
+}
+
+/*******************************************************************************************************************/

@@ -1,0 +1,134 @@
+.form {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.6); /* black with 60% opacity */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999; /* ensure it’s on top */
+  overflow-y: auto; /* scroll if content is taller */
+  padding: 1rem;
+}
+
+span{
+  color: rgb(238, 66, 66);
+  font-style: italic;
+}
+
+.slip-container {
+  background-color: white;
+  border-radius: 8px;
+  padding: 2rem;
+  max-width: 600px;
+  width: 100%;
+  box-shadow: 0 0 15px rgba(0,0,0,0.3);
+  max-height: 75vh;
+  overflow-y: auto;
+}
+
+.slip-container h2 {
+  font-weight: 700;
+  font-size: 1.5rem;
+  margin-bottom: 1.5rem;
+  color: #ff6600;
+  text-align: center;
+}
+
+.slip-container p {
+  margin: 0.3rem 0 1rem;
+  font-size: 1rem;
+  line-height: 1.3;
+  color: #555;
+  text-align: center;
+}
+
+.form-slip {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.6rem 2.5rem;
+  font-size: 1rem;
+}
+
+.form-slip label {
+  display: flex;
+  flex-direction: column;
+  font-weight: 600;
+  color: #444;
+}
+
+.form-slip select,
+.form-slip input[type="date"],
+.form-slip input[type="time"],
+.form-slip input[type="number"],
+.form-slip textarea,
+.form-slip input[readonly] {
+  margin-top: 0.4rem;
+  padding: 0.5rem 0.6rem;
+  font-size: 1rem;
+  border: 1.8px solid #ddd;
+  border-radius: 5px;
+  background-color: #fafafa;
+  transition: border-color 0.2s ease;
+  font-family: inherit;
+  color: #222;
+  width: 100%;
+}
+
+.form-slip select:focus,
+.form-slip input[type="date"]:focus,
+.form-slip input[type="time"]:focus,
+.form-slip input[type="number"]:focus,
+.form-slip textarea:focus {
+  outline: none;
+  border-color: #ff6600;
+  background-color: #fff;
+  box-shadow: 0 0 6px #ff660066;
+}
+
+.form-slip textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+a{
+  text-decoration: none;
+}
+
+.form-slip button {
+  padding: 0.8em;
+  background-color: #ff6600;
+  border: none;
+  border-radius: 6px;
+  color: white;
+  font-weight: 700;
+  font-size: 1.15rem;
+  cursor: pointer;
+  margin-top: 1rem;
+  transition: background-color 0.3s ease;
+  width: 100%;
+}
+
+.buttons{
+  display: flex;
+}
+
+.form-slip button:hover {
+  background-color: #e65500;
+}
+
+@media (max-width: 720px) {
+  .form-slip {
+    grid-template-columns: 1fr;
+  }
+  .slip-container {
+    padding: 1.5rem 1.8rem;
+  }
+  .slip-container h2 {
+    font-size: 1.6rem;
+  }
+  .form-slip button {
+    font-size: 1.1rem;
+  }
+}

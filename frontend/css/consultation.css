@@ -1,0 +1,566 @@
+html {
+  overflow: hidden;
+}
+
+body::-webkit-scrollbar {
+  display: none;
+}
+
+body {
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.chosen-dashboard:nth-of-type(3)[data-icon="consultation"] .icon-img {
+  content: url('/images/consultation-orange.png');
+  background-color: rgb(255, 239, 210);
+  border-left: 0.2em solid rgb(250, 127, 26);
+  width: 3.7em;
+}
+
+.chosen-dashboard:nth-of-type(4)[data-icon="consultation"] .icon-img {
+  content: url('/images/consultation-orange.png');
+  background-color: rgb(255, 239, 210);
+  border-left: 0.2em solid rgb(250, 127, 26);
+  width: 3.7em;
+}
+
+.chosen-dashboard:nth-of-type(3):hover {
+  background-color: #fafafa;
+}
+
+/****************************************************/
+/* Layout & Container Styles */
+/****************************************************/
+.consultation__container {
+  padding: 1rem 0.5rem;
+  margin-left: 60px;
+  margin-top: 0.5em;
+  font-family: 'Segoe UI', sans-serif;
+  color: #333;
+  background-color: #f9f9f9;
+  min-height: calc(100vh - 60px);
+  box-sizing: border-box;
+  transition: all 0.3s ease;
+  border-radius: 1em;
+  margin-right: 0.5em;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+/****************************************************/
+/* Search Bar */
+/****************************************************/
+.search__bar {
+  display: flex;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.search__bar label {
+  margin-right: 0.75rem;
+  font-weight: 500;
+}
+
+.search__bar-input {
+  padding: 0.6rem 1rem;
+  border-radius: 8px;
+  border: 1.5px solid #ccc;
+  flex: 1;
+  max-width: 400px;
+  transition: border-color 0.3s;
+}
+
+.search__bar-input:focus {
+  border-color: rgb(250, 127, 26);
+  outline: none;
+}
+
+/****************************************************/
+/* Consultation Status Buttons */
+/****************************************************/
+.consultation__status {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.consultation__button {
+  position: relative;
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 8px;
+  background-color: #eaeaea;
+  font-weight: 600;
+  color: #555;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  overflow: hidden;
+}
+
+.consultation__button:hover {
+  background-color: rgb(250, 127, 26);
+  color: white;
+  transform: scale(1.05);
+}
+
+.consultation__button.active {
+  background-color: rgb(250, 127, 26);
+  color: white;
+  box-shadow: 0 4px 12px rgba(250, 127, 26, 0.4);
+}
+
+.consultation__button:hover::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -75%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(120deg, rgba(255,255,255,0.2), rgba(255,255,255,0.6), rgba(255,255,255,0.2));
+  transform: skewX(-20deg);
+  z-index: 1;
+  animation: shine 1s infinite;
+}
+
+@keyframes shine {
+  0% {
+    left: -75%;
+  }
+  100% {
+    left: 125%;
+  }
+}
+
+/****************************************************/
+/* Consultation History Placeholder */
+/****************************************************/
+.consultation-history {
+  border: 2px dashed #ccc;
+  border-radius: 10px;
+  padding: 3rem;
+  background-color: #fff;
+  min-height: 200px;
+  text-align: center;
+  color: #888;
+  font-style: italic;
+  animation: fadeInUp 0.5s ease-in;
+}
+
+/****************************************************/
+/* Animations */
+/****************************************************/
+@keyframes fadeInUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/****************************************************/
+/* Scrollable Consultation List */
+/****************************************************/
+.consultation__list {
+  max-height: 75vh;
+  overflow-y: auto;
+  padding-right: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+/* Optional: Smooth scrollbar style */
+.consultation__list::-webkit-scrollbar {
+  width: 8px;
+}
+.consultation__list::-webkit-scrollbar-thumb {
+  background-color: #ccc;
+  border-radius: 4px;
+}
+.consultation__list::-webkit-scrollbar-thumb:hover {
+  background-color: #aaa;
+}
+
+/****************************************************/
+/* Individual Consultation Card */
+/****************************************************/
+.consultation-card {
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  padding: 0.6rem 1rem;
+  margin-bottom: 0.5rem;
+  transition: box-shadow 0.3s ease;
+  cursor: pointer;
+}
+
+.consultation-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/****************************************************/
+/* Status Text Colors */
+/****************************************************/
+.color-blue {
+  color: #007BFF;
+}
+
+.color-green {
+  color: #28a745;
+}
+
+.color-red {
+  color: #dc3545;
+}
+
+.color-yelloworange {
+  color: #fd7e14;
+}
+
+.color-purple {
+  color: #6f42c1;
+}
+
+/* Modal overlay covers entire viewport */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0,0,0,0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+/* Modal content box */
+.modal-content {
+  background: #fff;
+  border-radius: 8px;
+  max-width: 500px;
+  width: 90%;
+  max-height: 80vh;
+  overflow-y: auto;
+  padding: 20px 30px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+  position: relative;
+}
+
+/* Close button */
+.modal-close {
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  background: transparent;
+  border: none;
+  font-size: 28px;
+  cursor: pointer;
+  color: #333;
+}
+
+/* Scrollbar for modal content if overflow */
+.modal-content::-webkit-scrollbar {
+  width: 6px;
+}
+.modal-content::-webkit-scrollbar-thumb {
+  background-color: #ccc;
+  border-radius: 3px;
+}
+
+select{
+  font-size: 1.1em;
+  border-radius: 0.4em;
+  margin-left: 0.5em;
+}
+
+/* Overlay behind the popup */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.6); /* dark semi-transparent */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  animation: fadeIn 0.25s ease forwards;
+}
+
+/* Popup box */
+.modal-content {
+  background-color: #fff;
+  padding: 1.5rem 2rem;
+  width: 400px;
+  max-width: 90vw;
+  border-radius: 10px;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.25);
+  position: relative;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: #333;
+  animation: slideDown 0.3s ease forwards;
+}
+
+/* Close button (X) top-right */
+.modal-close {
+  position: absolute;
+  top: 12px;
+  right: 15px;
+  background: transparent;
+  border: none;
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #999;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.modal-close:hover {
+  color: #f45b25; /* orange highlight on hover */
+}
+
+/* Fade in animation */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Slide down animation for popup */
+@keyframes slideDown {
+  from {
+    transform: translateY(-20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Notes content styling */
+.notes-content {
+  margin-top: 1rem;
+  line-height: 1.4;
+  font-size: 1rem;
+  white-space: pre-wrap; /* preserve formatting */
+  max-height: 300px;
+  overflow-y: auto;
+  color: #444;
+}
+
+.popup-overlay{
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+/* Review Modal and Button Styles */
+.review-btn {
+  background-color: #e67e22;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 0.5em 1.2em;
+  margin-top: 0.7em;
+  margin-right: 0.5em;
+  font-size: 1em;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, box-shadow 0.2s;
+  box-shadow: 0 2px 6px rgba(250, 127, 26, 0.08);
+}
+.review-btn:hover {
+  background-color: #fa7f1a;
+  color: #fff;
+}
+
+.modal-content label {
+  display: block;
+  margin-bottom: 0.7em;
+  font-weight: 500;
+}
+.modal-content input[type="number"],
+.modal-content textarea {
+  width: 100%;
+  padding: 0.5em;
+  border: 1.5px solid #e67e22;
+  border-radius: 5px;
+  margin-top: 0.2em;
+  margin-bottom: 0.7em;
+  font-size: 1em;
+  background: #fafafa;
+  resize: vertical;
+}
+.modal-content input[type="number"]:focus,
+.modal-content textarea:focus {
+  border-color: #fa7f1a;
+  outline: none;
+}
+
+/* --- Improved Modal Section Styles --- */
+.modal-section {
+  margin-bottom: 1.5em;
+  padding-bottom: 1em;
+  border-bottom: 1px solid #f3e6d8;
+}
+.modal-section:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+.modal-section-title {
+  font-size: 1.2em;
+  font-weight: 700;
+  color: #e67e22;
+  margin-bottom: 0.7em;
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+}
+.detail-label {
+  font-weight: 600;
+  color: #555;
+  margin-right: 0.3em;
+}
+.detail-value {
+  color: #222;
+  font-weight: 400;
+}
+
+/* --- Recommendation Modal --- */
+.recommendation-modal {
+  background: #fff8f0;
+  border-left: 5px solid #e67e22;
+  border-radius: 8px;
+  padding: 1.5em 1.2em;
+  margin: 1em 0;
+}
+.recommendation-title {
+  font-size: 1.1em;
+  font-weight: 700;
+  color: #e67e22;
+  margin-bottom: 0.5em;
+}
+.recommendation-text {
+  font-size: 1.15em;
+  color: #444;
+  font-style: italic;
+}
+
+/* --- Review Modal Improvements --- */
+.review-modal {
+  padding: 2em;
+}
+.review-modal-header {
+  display: flex;
+  align-items: center;
+  gap: 0.7em;
+  margin-bottom: 1em;
+}
+.review-modal-profile {
+  width: 2.5em;
+  height: 2.5em;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #f3e6d8;
+  background: #eee;
+}
+.review-modal-username {
+  font-weight: 700;
+  color: #e67e22;
+  font-size: 1.08em;
+}
+.review-modal-stars {
+  display: flex;
+  align-items: center;
+  gap: 0.1em;
+  margin-top: 0.2em;
+}
+.review-modal-star {
+  color: #e0e0e0;
+  font-size: 1.3em;
+  transition: color 0.2s;
+  cursor: pointer;
+}
+.review-modal-star.filled {
+  color: #f39c12;
+}
+.review-modal label {
+  font-weight: 600;
+  color: #555;
+  margin-bottom: 0.3em;
+}
+.review-modal textarea {
+  min-height: 4em;
+  resize: vertical;
+  width: 95%;
+  padding: 0.5em;
+  border: 1.5px solid #e67e22;
+  border-radius: 5px;
+  margin-top: 0.2em;
+  margin-bottom: 0.7em;
+  font-size: 1em;
+  background: #fafafa;
+}
+.review-modal-submit {
+  background-color: #e67e22;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 0.6em 1.5em;
+  font-size: 1em;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 1em;
+  transition: background 0.2s;
+}
+.review-modal-submit:hover {
+  background-color: #fa7f1a;
+}
+
+.cancel-btn {
+  background-color: #fff;
+  color: #e67e22;
+  border: 2px solid #e67e22;
+  border-radius: 6px;
+  padding: 0.6em 1.5em;
+  font-size: 1em;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 1em;
+  margin-left: 0.7em;
+  transition: background 0.2s, color 0.2s;
+}
+.cancel-btn:hover {
+  background-color: #fbeee0;
+  color: #d35400;
+  border-color: #d35400;
+}
+
+.consultation__card-list {
+  max-height: 70vh;
+  overflow-y: auto;
+  padding-right: 0.5rem;
+}
+.consultation__card-list::-webkit-scrollbar {
+  width: 8px;
+}
+.consultation__card-list::-webkit-scrollbar-thumb {
+  background-color: #ccc;
+  border-radius: 4px;
+}
+.consultation__card-list::-webkit-scrollbar-thumb:hover {
+  background-color: #aaa;
+}

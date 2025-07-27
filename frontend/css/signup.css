@@ -1,0 +1,216 @@
+body{
+  background: linear-gradient(to right, rgb(250, 127, 26), #ffe46a);
+}
+
+.signup__container {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-family: 'Arial', sans-serif;
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 12px;
+  width: 100%;
+  max-width: 500px;
+  height: 83vh;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  overflow: hidden;
+  animation: fadeInUp 0.5s ease-out;
+}
+
+span{
+  font-style: italic;
+  color: red;
+}
+
+form {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+/* Step Indicator */
+.step-indicator {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 15px;
+}
+
+.step {
+  width: 26px;
+  height: 26px;
+  font-size: 0.9rem;
+  border-radius: 50%;
+  background-color: #ccc;
+  margin: 0 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  transition: background-color 0.3s ease;
+}
+
+.step.active {
+  background-color: rgb(250, 127, 26);
+  color: white;
+}
+
+/* Headings */
+.signup h2 {
+  text-align: center;
+  font-size: 1.4rem;
+  margin-bottom: 15px;
+  color: #333;
+}
+
+/* Labels and Inputs */
+.signup label {
+  display: block;
+  margin: 6px 0 4px;
+  font-size: 0.9rem;
+}
+
+.signup input,
+.signup select {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 12px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 0.95rem;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.signup input{
+  width: 31.5em;
+}
+
+.signup input:focus,
+.signup select:focus {
+  outline: none;
+  border-color: rgb(250, 127, 26);
+  box-shadow: 0 0 4px rgba(250, 127, 26, 0.4);
+}
+
+/* Navigation Buttons */
+/* Button container (for both buttons) */
+.navigation-buttons {
+  display: flex;
+  gap: 10px; /* Space between buttons */
+  width: 100%; /* Makes sure buttons take up full width */
+}
+
+/* Button styling */
+button {
+  position: relative;
+  background-color: rgb(250, 127, 26);
+  color: white;
+  padding: 0.75rem 1.5rem;
+  border: 2px solid rgb(250, 127, 26);
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 1rem;
+  overflow: hidden;
+  transition: background-color 0.4s ease, color 0.4s ease, box-shadow 0.3s ease;
+  flex: 1; /* Makes the button take all available space */
+}
+
+/* Push second button to the right */
+.navigation-buttons button:last-child {
+  margin-left: auto; /* Pushes the last button to the right */
+}
+
+
+button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -75%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(
+    120deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.4) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  transform: skewX(-25deg);
+}
+
+button:hover::before {
+  animation: shine 0.8s ease forwards;
+}
+
+@keyframes shine {
+  0% {
+    left: -75%;
+  }
+  100% {
+    left: 125%;
+  }
+}
+
+button:hover {
+  box-shadow: 0 6px 18px rgba(250, 127, 26, 0.4);
+  background-color: rgb(250, 127, 26);
+  color: white;
+}
+
+/* Back Button */
+.homepage__back-button {
+  position: absolute;
+  bottom: 2em;
+  left: 2em;
+  background-color: rgb(250, 127, 26);
+  color: #fff;
+  border: none;
+  padding: 0.75em 1.5em;
+  border-radius: 2em;
+  font-size: 1em;
+  cursor: pointer;
+  font-weight: bold;
+  border: 2px solid rgb(250, 127, 26);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.homepage__back-button:hover {
+  background-color: #fafafa;
+  color: rgb(250, 127, 26);
+}
+
+/* Animations */
+@keyframes fadeInUp {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -45%);
+  }
+  100% {
+    opacity: 1;
+    transform: translate(-50%, -50%);
+  }
+}
+
+.password-rules {
+  list-style: none;
+  padding-left: 0;
+  margin-top: 10px;
+}
+
+.password-rules li {
+  font-size: 14px;
+  margin-bottom: 4px;
+}
+
+.password-rules li.valid {
+  color: green;
+}
+
+.password-rules li.invalid {
+  color: red;
+}

@@ -1,0 +1,11 @@
+{
+  "compilerOptions": {
+    "checkJs": true,
+    "module": "es2022",
+    "target": "es2022",
+    "moduleResolution": "node",
+    "baseUrl": "."
+  },
+  "include": ["./**/*.js"],
+  "exclude": ["frontend", "node_modules"]
+}

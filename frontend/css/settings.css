@@ -1,0 +1,118 @@
+.password-container {
+    width: 35em;
+    padding: 2rem;
+    border-radius: 1.5rem;
+    background: white;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    border: 1px solid #e67e22;
+    color: #e67e22;
+    margin-left: 7%;
+  }
+
+  .password{
+    max-width: 75em;
+    height: 36em;
+    margin: 2em auto 0 auto;
+    margin-left: 10.5em;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.07);
+    border-radius: 1.5rem;
+  }
+
+  .profile__container{
+    display: flex;
+  }
+  
+  .profile__information{
+    width: 24%;
+    border: 1px solid #e67e22;
+    height: 100%;
+    padding-bottom: 1.5%;
+    border-radius: 1.5rem;
+    margin-right: 4rem;
+  }
+
+  .profile__information h2 {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #e67e22;
+    margin-bottom: 0.5rem;
+    margin-top: 1.5rem;
+    text-align: center; 
+  }
+
+  .profile__title{
+    border-bottom: 1px solid rgb(250, 127, 26);
+  }
+
+  .profile__information button{
+    display: block;
+    justify-self: center;
+    border-radius: 2rem;
+    font-size: 1.2em;
+    padding: 0.8em;
+    border: none;
+    color: rgb(250, 127, 26);
+    margin-top: 1em;
+    font-weight: bold;
+    background-color: #f9f9f9;
+    cursor: pointer;
+    width: 12em;
+  }
+
+  .password-container input:focus {
+    outline: none;
+  }
+
+  .profile__information button:hover{
+    background-color: rgb(250, 127, 26);
+    color: #fff6ed;
+  }
+
+  .profile__information a{
+    text-decoration: none;
+  }
+  
+  .password-container h2 {
+    text-align: center;
+    margin-bottom: 2rem;
+  }
+  
+  .password-container input {
+    display: block;
+    width: 93%;
+    margin-bottom: 1rem;
+    padding: 0.75rem;
+    border-radius: 5px;
+    border: 1px solid #e67e22;
+    font-size: 1em;
+  }
+  
+  .password-container button {
+    width: 97.5%;
+    padding: 0.75rem;
+    background-color: #FF8C00; /* Orange main color */
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 1.5em;
+  }
+  
+  .password-container button:hover {
+    background-color: #E07B00; /* Darker orange for hover */
+  }
+  
+  .success {
+    color: green;
+    text-align: center;
+  }
+  
+  .error {
+    color: red;
+    text-align: center;
+  }
+  
+  span{
+    font-style: italic;
+    color: rgb(193, 13, 13);
+  }
