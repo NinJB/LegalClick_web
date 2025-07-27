@@ -1,0 +1,11 @@
+// jsconfig.json
+{
+  "compilerOptions": {
+    "checkJs": true,
+    "module": "es2022",
+    "target": "es2022",
+    "moduleResolution": "node",
+    "baseUrl": "."
+  },
+  "include": ["./**/*.js"]
+}

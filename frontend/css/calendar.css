@@ -1,0 +1,437 @@
+html {
+    overflow: hidden;
+}
+
+body::-webkit-scrollbar {
+    display: none;
+}
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+.chosen-dashboard:nth-of-type(4)[data-icon="calendar"] .icon-img {
+    content: url('/images/calendar-orange.png');
+    background-color: rgb(255, 239, 210);
+    border-left: 0.2em solid rgb(250, 127, 26);
+    width: 3.55em;
+}
+
+.chosen-dashboard:nth-of-type(4):hover {
+    background-color: #fafafa;
+}
+
+.calendar__container {
+    display: flex;
+    margin-left: 80px;
+    margin-top: 1em;
+    margin-right: 1em;
+    height: calc(100vh - 60px);
+    background-color: #fff;
+    border-radius: 1em;
+    overflow: hidden;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
+    animation: fadeInUp 1s ease-out;
+}
+
+.calendar__panel {
+    flex: 1;
+    overflow-y: auto;
+    padding: 1.5rem;
+    border-right: 1px solid #eee;
+    background-color: #f9f9f9;
+}
+
+.calendar__panel h3 {
+    margin-bottom: 1rem;
+    font-weight: 600;
+    color: #333;
+}
+
+/* Calendar Grid for days */
+.calendar__grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 0.5rem;
+    grid-auto-rows: 60px; /* Ensures buttons have a fixed height */
+}
+
+.calendar__day {
+    overflow: hidden;
+    padding: 1rem;
+    border: none;
+    border-radius: 8px;
+    background-color: #eaeaea;
+    color: #333;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%; /* Ensures buttons maintain the same size */
+}
+
+.calendar__day:hover {
+    background: linear-gradient(to right, rgb(250, 127, 26), #ffc338);
+    color: white;
+    transform: scale(1.05);
+    z-index: 2; /* Makes sure the hover effect doesn't get cut off */
+}
+
+.calendar__day.active {
+    background: linear-gradient(to right, rgb(250, 127, 26), #ffc338);
+    color: white;
+    box-shadow: 0 4px 12px rgba(250, 127, 26, 0.4);
+    z-index: 2;
+}
+
+.calendar__day.has-appointment {
+    background-color: #b22222 !important;
+    color: #fff !important;
+    box-shadow: 0 0 8px #b22222;
+    z-index: 3;
+}
+
+/* Shine effect */
+.calendar__day:hover::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -75%;
+    width: 50%;
+    height: 100%;
+    background: linear-gradient(120deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.6), rgba(255, 255, 255, 0.2));
+    transform: skewX(-20deg);
+    z-index: 1;
+    animation: shine 1s infinite;
+}
+
+/* Active state keeps the shine */
+.calendar__day.active {
+    background: linear-gradient(to right, rgb(250, 127, 26), #ffc338);
+    color: white;
+    box-shadow: 0 4px 12px rgba(250, 127, 26, 0.4);
+}
+
+/* Shine animation */
+@keyframes shine {
+    0% {
+        left: -75%;
+    }
+    100% {
+        left: 125%;
+    }
+}
+
+/* Fade In Up effect for calendar load */
+@keyframes fadeInUp {
+    from {
+        transform: translateY(20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.calendar__card {
+    width: 300px;
+    padding: 1.5rem;
+    background-color: #fff;
+    color: #444;
+    overflow-y: auto;
+    animation: fadeInUp 1.2s ease-out;
+}
+
+.calendar__card h4 {
+    margin-bottom: 1rem;
+    font-size: 1.2rem;
+}
+
+.calendar__card ul {
+    list-style: none;
+    padding: 0;
+}
+
+.calendar__card li {
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    margin-bottom: 14px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    padding: 16px 18px 14px 18px;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: flex-start;
+    position: relative;
+}
+
+.appointment-info {
+    margin-bottom: 16px;
+    text-align: center;
+}
+
+.reschedule-btn-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 12px;
+    width: auto;
+    padding: 1em;
+}
+
+.reschedule-btn {
+    font-size: 12px;
+    padding: 0.5em;
+    border-radius: 4px;
+    background: #f5a623;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    margin: 0 auto;
+    transition: background 0.2s;
+    font-weight: 600;
+    display: inline-block;
+    max-width: 220px;
+}
+
+.reschedule-btn:hover {
+    background: #e5941a;
+}
+
+.calendar__card li {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid #eee;
+}
+
+.calendar__controls {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.calendar__controls select {
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    font-weight: 600;
+    background-color: #fff;
+    color: #333;
+}
+
+.calendar__weekdays {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    text-align: center;
+    font-weight: 600;
+    color: #888;
+    margin-bottom: 0.5rem;
+}
+
+.calendar__weekdays .weekday {
+    padding: 0.5rem 0;
+}
+
+.calendar__day.active.has-appointment {
+    background: #b22222 !important;
+    color: #fff !important;
+    box-shadow: 0 0 8px #b22222 !important;
+    z-index: 4;
+}
+
+/* --- Reschedule Modal Improvements --- */
+/* Fix modal overlay to always be on top and visible */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0,0,0,0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 99999;
+  animation: fadeIn 0.25s ease forwards;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.reschedule-modal-content {
+  background: #fff;
+  border-radius: 12px;
+  max-width: 420px;
+  width: 95%;
+  padding: 2.2em 2em 2.5em 2em;
+  box-shadow: 0 6px 24px rgba(250, 127, 26, 0.13);
+  position: relative;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: #333;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  animation: slideDown 0.3s ease forwards;
+  z-index: 100000;
+}
+.reschedule-modal-content h3 {
+  color: #e67e22;
+  font-size: 1.3em;
+  font-weight: 700;
+  margin-bottom: 1.2em;
+  text-align: center;
+}
+.reschedule-modal-content label {
+  font-weight: 600;
+  color: #555;
+  margin-top: 1em;
+  margin-bottom: 0.3em;
+  align-self: flex-start;
+}
+.reschedule-modal-content input[type="date"],
+.reschedule-modal-content input[type="time"] {
+  width: 93%;
+  padding: 0.6em 0.8em;
+  border: 1.5px solid #e67e22;
+  border-radius: 6px;
+  margin-bottom: 1em;
+  font-size: 1em;
+  background: #fafafa;
+  transition: border-color 0.2s;
+}
+.reschedule-modal-content input[type="date"]:focus,
+.reschedule-modal-content input[type="time"]:focus {
+  border-color: #fa7f1a;
+  outline: none;
+}
+.reschedule-modal-content p {
+  margin: 0.2em 0 0.5em 0;
+  font-size: 1.05em;
+  color: #444;
+  width: 100%;
+  text-align: left;
+}
+.reschedule-modal-actions {
+  display: flex;
+  justify-content: center;
+  gap: 1.2em;
+  margin-top: 1.5em;
+  width: 100%;
+}
+.reschedule-modal-content .review-modal-submit {
+  background-color: #e67e22;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 0.7em 2.2em;
+  font-size: 1.08em;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+  box-shadow: 0 2px 6px rgba(250, 127, 26, 0.08);
+}
+.reschedule-modal-content .review-modal-submit:hover {
+  background-color: #fa7f1a;
+}
+.reschedule-modal-content .cancel-btn {
+  background-color: #fff;
+  color: #e67e22;
+  border: 2px solid #e67e22;
+  border-radius: 8px;
+  padding: 0.7em 2.2em;
+  font-size: 1.08em;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+.reschedule-modal-content .cancel-btn:hover {
+  background-color: #fbeee0;
+  color: #d35400;
+  border-color: #d35400;
+}
+.reschedule-modal-content .modal-close {
+  position: absolute;
+  top: 12px;
+  right: 15px;
+  background: transparent;
+  border: none;
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #999;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+.reschedule-modal-content .modal-close:hover {
+  color: #f45b25;
+}
+.reschedule-modal-content .reschedule-error {
+  color: #d35400;
+  margin-top: 0.5em;
+  text-align: center;
+  font-size: 1em;
+}
+
+.reschedule-modal-content select {
+    width: 100%;
+    padding: 0.6em 0.8em;
+    border: 1.5px solid #e67e22;
+    border-radius: 6px;
+    margin-bottom: 1em;
+    font-size: 1em;
+    background: #fafafa;
+    transition: border-color 0.2s;
+    color: #333;
+    box-sizing: border-box;
+}
+
+.reschedule-modal-content select:focus {
+    outline: none;
+    border-color: #fa7f1a;
+    box-shadow: 0 0 0 2px rgba(250, 127, 26, 0.15);
+}
+
+/* --- Reschedule Button on Card --- */
+.reschedule-btn {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 1.5em auto 0 auto;
+  background-color: #e67e22;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 0.6em 2.2em;
+  font-size: 1.08em;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(250, 127, 26, 0.08);
+  transition: background 0.2s, box-shadow 0.2s;
+  width: 80%;
+  position: absolute;
+  left: 50%;
+  bottom: 1.2em;
+  transform: translateX(-50%);
+}
+.reschedule-btn:hover {
+  background-color: #fa7f1a;
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(250, 127, 26, 0.18);
+}
+
+/* Ensure appointment card is positioned relative for absolute button */
+.calendar__card ul {
+  position: relative;
+  padding-bottom: 3.5em;
+}
+
+.consultations-count-lowerleft{
+  color: #b22222;
+  padding-top: 2em;
+  font-size: 1.2em;
+}

@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LegalClick</title>
+
+  <!-- Vue import -->
+  <!--I used Vue for flexible, reactive framework with minimal setup-->
+  <script src="https://unpkg.com/vue@3"></script>
+  <link rel="icon" sizes="16x16" href="/images/icon-logo.png" aria-label="LegalClick">
+
+  <!--CSS-->
+  <link rel="stylesheet" href="/css/navbar.css" />
+  <link rel="stylesheet" href="/css/chatbot.css" />
+  <link rel="stylesheet" href="/css/messages.css" />
+  <script src="../../global.js"></script>
+</head>
+
+<body>
+  <!-- Full Layout Container -->
+  <div class="app-layout">
+
+    <!-- Vue-mounted Navigation Component (Top & Side navs) -->
+    <div class="navigation"></div>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+      <!-- Vue-mounted Lawyer Management Section -->
+      <div class="messages"></div>
+    </main>
+  </div>
+</body>
+
+<script src="//code.tidio.co/5lvu4tnfhcozp1nlimh98guu1wfxbz6s.js" async></script>
+
+<!-- JavaScript Links -->
+<!--No module yet since it's only the home page-->
+<script src="/javascript/navigation/nav-client.js" defer></script>
+<script src="/javascript/messages/messages-client.js" defer></script>
+
+</html>

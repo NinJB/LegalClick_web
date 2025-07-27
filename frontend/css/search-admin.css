@@ -1,0 +1,393 @@
+/* Global Styles */
+html, body {
+    font-family: 'Roboto', sans-serif;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    overflow-x: hidden;
+    background-color: #ffffff; /* Soft background for the dashboard */
+    overflow: hidden;
+}
+
+.chosen-dashboard:nth-of-type(1)[data-icon="search"] .icon-img {
+    content: url('/images/search-orange.png');
+    background-color: rgb(255, 239, 210);
+    border-left: 0.2em solid rgb(250, 127, 26);
+    width: 3.55em;
+}
+
+.chosen-dashboard:nth-of-type(1):hover{
+    background-color: #fafafa;
+}
+
+/* Main Content */
+.main-content {
+    flex: 1;
+    padding: 20px;
+    background-color: #fff;
+    min-height: 76vh;
+    overflow-y: auto;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Added shadow to the content */
+    border-radius: 1.5em;
+    margin-top: 2em; /* Space from top bar */
+    margin-left: 9%;
+    margin-right: 9%;
+}
+
+/* Search Bar */
+.search-bar {
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: center;
+}
+
+.search-bar input {
+    padding: 12px 18px;
+    width: 450px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 16px;
+    background-color: #fff;
+    transition: border 0.3s ease;
+}
+
+.search-bar input:focus {
+    border-color: #ff9800;
+    outline: none;
+}
+
+/* Filter Buttons */
+.filter-buttons {
+    margin-bottom: 30px;
+    display: flex;
+    justify-content: center;
+}
+
+.filter-buttons button {
+    padding: 12px 24px;
+    border: 1px solid #ff9800;
+    background-color: #fff;
+    color: #ff9800;
+    font-weight: 600;
+    border-radius: 8px;
+    margin: 0 15px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.filter-buttons button.active,
+.filter-buttons button:hover {
+    background-color: #ff9800;
+    color: white;
+}
+
+/* Lawyer Table */
+.lawyer-table {
+    margin-top: 20px;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    background-color: #fff;
+}
+
+.lawyer-table table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+}
+
+.lawyer-table th, .lawyer-table td {
+    padding: 15px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+    font-size: 16px;
+}
+
+.lawyer-table th {
+    background-color: #f4f4f4;
+    color: #333;
+    font-weight: 600;
+}
+
+.lawyer-table tr:hover {
+    background-color: #f9f9f9;
+}
+
+.lawyer-table button {
+    padding: 8px 16px;
+    font-size: 14px;
+    background-color: #ff9800;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.lawyer-table button:hover {
+    background-color: #f57c00;
+}
+
+/* Modal Styling */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.modal-content {
+    background-color: #fff;
+    padding: 1em;
+    border-radius: 12px;
+    width: 40%;
+    height: 40em;
+    overflow-y: auto;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+    animation: slideUp 0.3s ease-in-out;
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(30px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.modal-content h3 {
+    font-size: 22px;
+    margin-bottom: 20px;
+    color: #2f3b52;
+    font-weight: 600;
+    margin-top: 0.5em;
+}
+
+.modal-content p {
+    font-size: 14px;
+    color: #444;
+    margin-bottom: 10px;
+}
+
+.modal-content img.license-img {
+    width: 100%;
+    max-height: 250px;
+    object-fit: contain;
+    margin-top: 10px;
+    border-radius: 6px;
+    border: 1px solid #ddd;
+}
+
+/* Modal Buttons */
+.modal-content button {
+    margin-top: 15px;
+    padding: 12px;
+    width: 100%;
+    background-color: #ff9800;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.modal-content button:hover {
+    background-color: #f57c00;
+}
+
+.modal-body {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    margin-top: 20px;
+}
+
+.lawyer-info, .transaction-trail {
+    flex: 1;
+    min-width: 280px;
+}
+
+.lawyer-info{
+    padding: 15px;
+    border-radius: 8px;
+}
+
+.lawyer-info h4{
+    color: #ffc117;
+    margin-bottom: 0.5em;
+}
+
+.transaction-trail {
+    background-color: #fbf6f1;
+    border-left: 4px solid #ff9800;
+    padding: 15px;
+    border-radius: 8px;
+    margin-top: -3em;
+}
+
+.transaction-trail h4 {
+    color: #ff9800;
+    margin-bottom: 10px;
+}
+
+.modal-actions button {
+    margin: 8px 0;
+    padding: 10px;
+    width: 100%;
+    font-weight: bold;
+    border: none;
+    border-radius: 6px;
+    color: white;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+.btn-confirm { background-color: #4caf50; }
+.btn-confirm:hover { background-color: #43a047; }
+
+.btn-reject { background-color: #f44336; }
+.btn-reject:hover { background-color: #e53935; }
+
+.btn-deactivate { background-color: #9c27b0; }
+.btn-deactivate:hover { background-color: #8e24aa; }
+
+.btn-activate { background-color: #2196f3; }
+.btn-activate:hover { background-color: #1e88e5; }
+
+.btn-close { background-color: #757575; }
+.btn-close:hover { background-color: #616161; }
+
+.license-img {
+    width: 100%;
+    max-height: 250px;
+    object-fit: contain;
+    margin-top: 10px;
+}
+
+.tab-navigation{
+    display: flex;
+    gap: 1em;
+    margin-top: -0.3em;
+}
+
+.tab-content{
+    text-align: center;
+}
+
+.profile-lawyer-wrapper{
+    background-image: url("/images/profile-background.png");
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
+    text-align: center;
+}
+
+.profile-img{
+    margin-top: 1em;
+    margin-bottom: 0.8em;
+    width: 10em;
+    height: 10em;
+    border-radius: 5em;
+}
+
+.modal-content {
+    display: flex;
+    flex-direction: column;
+    padding: 1em;
+    overflow-y: hidden;
+}
+
+.modal-actions {
+    display: flex;
+    gap: 1em;
+    margin-top: auto; /* This pushes it to the bottom */
+}
+
+/* Scrollable container for Transaction Trail */
+.transaction-log {
+    max-height: 31em; /* Adjust height as needed */
+    overflow-y: auto;
+}
+
+/* Scrollable container for Log Trail */
+.log-trail-log {
+    max-height: 31em; /* Adjust height as needed */
+    overflow-y: auto;
+    overflow-x: hidden;
+    margin-top: 1em;
+}
+
+/* Transaction Trail table */
+.transaction-log table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+    min-width: 600px; /* Optional: ensures horizontal scroll if table is wide */
+}
+
+.transaction-log th,
+.transaction-log td {
+    border: 1px solid #ccc;
+    padding: 8px 12px;
+    text-align: left;
+}
+
+.transaction-log th {
+    background-color: #f2f2f2;
+    font-weight: bold;
+}
+
+.transaction-log tbody tr:nth-child(even) {
+    background-color: #fafafa;
+}
+
+/* Log Trail table */
+.log-trail-log table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+    min-width: 600px;
+}
+
+.log-trail-log th,
+.log-trail-log td {
+    border: 1px solid #ccc;
+    padding: 8px 12px;
+    text-align: left;
+}
+
+.log-trail-log th {
+    background-color: #f2f2f2;
+    font-weight: bold;
+}
+
+.log-trail-log tbody tr:nth-child(even) {
+    background-color: #fafafa;
+}
+
+.transaction-log h2{
+    margin-top: 1em;
+    margin-bottom: 1em;
+}
+
+/* Scrollable container for Log Trail */
+.log-trail-log h2{
+    margin-top: 0.5em;
+    margin-bottom: 1em;
+}

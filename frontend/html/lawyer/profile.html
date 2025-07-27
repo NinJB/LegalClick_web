@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LegalClick</title>
+
+    <!-- Vue import -->
+    <!--I used Vue for flexible, reactive framework with minimal setup-->
+    <script src="https://unpkg.com/vue@3"></script>
+
+    <script>
+        window.API_BASE_URL = 'https://legalclickph.com';
+    </script>
+
+    <link rel="icon" sizes="16x16" href="/images/icon-logo.png" aria-label="LegalClick">
+
+    <!--CSS-->
+    <link rel="stylesheet" href="/css/navbar.css"/>
+    <link rel="stylesheet" href="/css/profile.css"/>
+</head>
+
+<body>
+    <div class="app-layout">
+        <!-- Navigation (Top and Side) -->
+        <div class="navigation"></div>
+    
+        <!-- Main Content Area -->
+        <main class="main-content">
+          <!-- Search Option -->
+          <div class="lawyer-profile-page"></div>
+        </main>
+    </div>
+</body>
+
+<!-- JavaScript Links -->
+<!--No module yet since it's only the home page-->
+<script src="/javascript/navigation/nav-lawyer.js" defer></script>
+<script src="/javascript/profile/profile-lawyer.js" defer></script>
+
+</html>

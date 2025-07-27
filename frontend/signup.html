@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LegalClick</title>
+
+    <!-- Vue import -->
+    <!--I used Vue for flexible, reactive framework with minimal setup-->
+    <script src="https://unpkg.com/vue@3"></script>
+    <link rel="icon" sizes="16x16" href="images/icon-logo.png" aria-label="LegalClick">
+
+    <script src="/global.js"></script>
+    <!--CSS-->
+    <link rel="stylesheet" href="/css/home.css" />
+</head>
+
+<body>
+    <div class="homepage__user--wrapper">
+        <img src="/images/logo.png" class="homepage__user--logo">
+
+        <div class="homepage__user">
+            <a href="/html/lawyer/signup.html">
+                <div class="homepage__user--container" data-role="lawyer">
+                    <img src="/images/lawyer-black.png" class="homepage__user--img" alt="Lawyer">
+                    <p>SIGN UP AS LAWYER</p>
+                </div>
+            </a>
+
+            <a href="/html/client/signup.html">
+                <div class="homepage__user--container" data-role="client">
+                    <img src="/images/client-black.png" class="homepage__user--img" alt="Client">
+                    <p>SIGN UP AS CLIENT</p>
+                </div>
+            </a>
+
+            <a href="/html/secretary/signup.html">
+                <div class="homepage__user--container" data-role="secretary">
+                    <img src="/images/secretary-black.png" class="homepage__user--img" alt="Secretary">
+                    <p>SIGN UP AS SECRETARY</p>
+                </div>
+            </a>
+        </div>
+
+        <a href="/index.html"><button class="homepage__back-button">Back</button></a>
+    </div>
+</body>
+
+<!-- JavaScript Links -->
+<!--No module yet since it's only the home page-->
+<script src="/javascript/navigation/nav-unregistered.js" defer></script>
+<script src="/javascript/homepage/home.js" defer></script>
+
+</html>

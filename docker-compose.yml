@@ -1,0 +1,53 @@
+services:
+  backend:
+    container_name: legalclick-backend
+    build:
+      context: .
+    working_dir: /app
+    ports:
+      - "5500:5500"
+    volumes:
+      - ./backend:/app/backend
+      - ./backend/uploads:/app/backend/uploads
+
+    environment:
+      - DB_HOST=legalclick-db
+      - DB_PORT=5432
+      - DB_USER=postgres
+      - DB_PASSWORD=your_secure_password
+      - DB_NAME=legalclick
+    depends_on:
+      - db
+    networks:
+      - legalclick-net
+      
+  frontend:
+    container_name: legalclick-frontend
+    image: nginx:alpine
+    volumes:
+      - ./frontend:/usr/share/nginx/html:ro
+    ports:
+      - "5173:80"
+    networks:
+      - legalclick-net
+
+  db:
+    container_name: legalclick-db
+    image: postgres:15-alpine
+    restart: unless-stopped
+    ports: 
+      - "5501:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: your_secure_password
+      POSTGRES_DB: legalclick
+    volumes:
+      - legalclick_db_data:/var/lib/postgresql/data
+    networks:
+      - legalclick-net
+
+networks:
+  legalclick-net:
+
+volumes:
+  legalclick_db_data:
