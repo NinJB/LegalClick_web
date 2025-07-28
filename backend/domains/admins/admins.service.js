@@ -135,6 +135,9 @@ export async function addAdmin(req, res) {
   const { username, first_name, last_name, email, password, contact_number, role_id } = req.body;
 
   try {
+    // Hash the password before storing
+    const hashedPassword = await bcrypt.hash(password, 10);
+
     // 1. Get the role of the admin performing the addition by admin_id (role_id here is admin_id of the logged-in admin)
     const roleResult = await client.query(
       `SELECT role FROM admin WHERE admin_id = $1`,
@@ -153,7 +156,7 @@ export async function addAdmin(req, res) {
       `INSERT INTO admin (username, first_name, last_name, email, password, contact_number, role)
        VALUES ($1, $2, $3, $4, $5, $6, $7)
        RETURNING admin_id`,
-      [username, first_name, last_name, email, password, contact_number, adminRole]
+      [username, first_name, last_name, email, hashedPassword, contact_number, adminRole]
     );
 
     const newAdminId = adminInsertResult.rows[0].admin_id;
@@ -172,7 +175,7 @@ export async function addAdmin(req, res) {
     await client.query(
       `INSERT INTO users (role_id, role, username, password, status, failed_attempts, locked_until)
        VALUES ($1, $2, $3, $4, 'Activated', 0, NULL)`,
-      [newAdminId, roleLabel, username, password]
+      [newAdminId, roleLabel, username, hashedPassword]
     );
 
     res.json({ success: true, message: "Admin and user account added successfully." });

@@ -49,6 +49,9 @@ export async function signup(req, res) {
       return res.status(400).json({ message: 'Roll number already exists.' });
     }
 
+    // Hash the password before storing
+    const hashedPassword = await bcrypt.hash(password, 10);
+
     const insertLawyerQuery = `
       INSERT INTO lawyers (
         roll_number, username, first_name, last_name,
@@ -77,7 +80,7 @@ export async function signup(req, res) {
       attorney_category,
       fileBuffer,
       law_school,
-      password,
+      hashedPassword,
       'Request' // <-- now passed as $15
     ];
 
@@ -91,7 +94,7 @@ export async function signup(req, res) {
       ) VALUES ($1, 'Lawyer', $2, $3, 'Request', 0, NULL);
     `;
 
-    await client.query(insertUserQuery, [lawyerId, username, password]);
+    await client.query(insertUserQuery, [lawyerId, username, hashedPassword]);
 
     fs.unlinkSync(attorneyLicense.path); // Clean up
 
@@ -141,6 +144,9 @@ export async function signupClients(req, res) {
       return res.status(400).json({ message: 'Username already exists.' });
     }
 
+    // Hash the password before storing
+    const hashedPassword = await bcrypt.hash(password, 10);
+
     // Insert into clients table
     const insertClientQuery = `
       INSERT INTO clients (
@@ -166,7 +172,7 @@ export async function signupClients(req, res) {
       email,
       contact_number,
       marital_status,
-      password,
+      hashedPassword,
       fileBuffer
     ];
 
@@ -180,7 +186,7 @@ export async function signupClients(req, res) {
       ) VALUES ($1, 'Client', $2, $3, 'Activated', 0, NULL);
     `;
 
-    const userValues = [clientId, username, password];
+    const userValues = [clientId, username, hashedPassword];
     await client.query(insertUserQuery, userValues);
 
     fs.unlinkSync(nationalId.path); // Clean up file

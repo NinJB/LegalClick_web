@@ -7,7 +7,8 @@ const lawyerManagement = Vue.createApp({
         searchQuery: '',
         consultations: [],
         logs: [],
-        activeTab: 'profile'
+        activeTab: 'profile',
+        showBookPopup: false // <-- NEW
         };
     },
     computed: {
@@ -145,6 +146,17 @@ const lawyerManagement = Vue.createApp({
         },
         setFilter(filter) {
             this.activeFilter = filter;
+        },
+        openBookPopup() {
+            this.showBookPopup = true;
+        },
+        closeBookPopup() {
+            this.showBookPopup = false;
+        },
+        proceedBookConsultation() {
+            this.showBookPopup = false;
+            // Place your booking logic here, or emit an event, etc.
+            alert('Booking request sent!');
         }
     },
     mounted() {
@@ -280,11 +292,112 @@ const lawyerManagement = Vue.createApp({
                 <button v-if="selectedLawyer.account_status === 'Activated'" class="btn btn-warning" @click="deactivateLawyer(selectedLawyer.lawyer_id)">Deactivate</button>
                 <button v-if="selectedLawyer.account_status === 'Deactivated'" class="btn btn-success" @click="activateLawyer(selectedLawyer.lawyer_id)">Activate</button>
                 <button class="btn btn-secondary" @click="closeModal">Close</button>
+                <!-- Book Consultation Button for Public Attorney -->
+                <button v-if="selectedLawyer.account_status === 'Activated' && selectedLawyer.attorney_category === 'Public'" class="btn btn-primary" @click="openBookPopup">Book Consultation</button>
                 </div>
             </div>
+            </div>
+
+            <!-- Book Consultation Popup -->
+            <div v-if="showBookPopup" class="modern-popup-overlay">
+                <div class="modern-popup">
+                    <h2>Book a Consultation with a Public Attorney</h2>
+                    <p>Please prepare the following before sending a request:</p>
+                    <ol>
+                        <li>Valid ID</li>
+                        <li>Recent Paycheck or Certificate of Indigency</li>
+                        <li>Prepare for a short interview at the Public Attorneys' Office.</li>
+                    </ol>
+                    <div class="disclaimer">
+                        <strong>Disclaimer:</strong> The Public Attorneys' Office's services are all free, but they do not offer online consultations.
+                    </div>
+                    <div class="popup-actions">
+                        <button class="btn btn-primary" @click="proceedBookConsultation">Book Consultation</button>
+                        <button class="btn btn-secondary" @click="closeBookPopup">Cancel</button>
+                    </div>
+                </div>
             </div>
         </div>
     `
 });
 
 lawyerManagement.mount('.lawyer-management');
+
+// Add modern popup styles
+const style = document.createElement('style');
+style.textContent = `
+.modern-popup-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+.modern-popup {
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+  padding: 2.5rem 2rem 2rem 2rem;
+  max-width: 420px;
+  width: 100%;
+  text-align: center;
+  animation: popupIn 0.2s cubic-bezier(.4,2,.6,1) both;
+}
+@keyframes popupIn {
+  from { transform: translateY(40px) scale(0.95); opacity: 0; }
+  to { transform: none; opacity: 1; }
+}
+.modern-popup h2 {
+  margin-bottom: 1rem;
+  font-size: 1.35rem;
+  color: #2d3a4a;
+}
+.modern-popup ol {
+  text-align: left;
+  margin: 1rem 0 1.5rem 1.2rem;
+  color: #2d3a4a;
+}
+.modern-popup .disclaimer {
+  background: #f6f8fa;
+  color: #b85c00;
+  border-left: 4px solid #ffb300;
+  padding: 0.7em 1em;
+  margin: 1.2em 0 1.5em 0;
+  border-radius: 6px;
+  font-size: 0.98em;
+}
+.popup-actions {
+  display: flex;
+  gap: 1em;
+  justify-content: center;
+}
+.btn.btn-primary {
+  background: linear-gradient(90deg, #3b82f6 0%, #2563eb 100%);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 0.7em 1.5em;
+  font-size: 1em;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.btn.btn-primary:hover {
+  background: linear-gradient(90deg, #2563eb 0%, #3b82f6 100%);
+}
+.btn.btn-secondary {
+  background: #e5e7eb;
+  color: #374151;
+  border: none;
+  border-radius: 6px;
+  padding: 0.7em 1.5em;
+  font-size: 1em;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.btn.btn-secondary:hover {
+  background: #d1d5db;
+}
+`;
+document.head.appendChild(style);

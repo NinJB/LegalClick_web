@@ -112,26 +112,7 @@ export async function checkUsername(req, res) {
   }
 };
 
-// Get Admins with Same Role
-export async function getAdminbyRole(req, res) {
-  const { adminId } = req.params;
-  try {
-    // Get role of the current admin
-    const roleRes = await client.query('SELECT role FROM admin WHERE admin_id = $1', [adminId]);
-    if (roleRes.rowCount === 0) {
-      return res.status(404).json({ message: 'Admin not found.' });
-    }
 
-    const role = roleRes.rows[0].role;
-
-    // Get all admins with the same role
-    const adminsRes = await client.query('SELECT * FROM admin WHERE role = $1', [role]);
-    res.json(adminsRes.rows);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: 'Error fetching admins by role.' });
-  }
-};
 
 // Lawyer signup function
 export async function signupLawyer(req, res) {

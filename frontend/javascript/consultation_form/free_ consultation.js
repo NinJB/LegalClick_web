@@ -9,12 +9,13 @@ const FreeConsultationForm = {
         consultation_date: '',
         consultation_time: '',
         consultation_duration: '1',
-        consultation_fee: 0, // Free consultation
-        consultation_mode: 'Online',
-        payment_mode: 'Free'
+        consultation_fee: 0, // Free consultation - fixed at 0
+        consultation_mode: 'In-Person', // Default to In-Person
+        payment_mode: 'Over the Counter' // Hidden but stored in database
       },
       specializations: [],
-      lawyerInfo: null
+      lawyerInfo: null,
+      availableTimes: [] // Will be populated with restricted times
     };
   },
   methods: {
@@ -39,6 +40,28 @@ const FreeConsultationForm = {
       } catch (error) {
         console.error('Error fetching lawyer info:', error);
       }
+    },
+    generateAvailableTimes() {
+      // Generate time slots from 8AM to 12PM and 1PM to 5PM
+      const times = [];
+      
+      // Morning slots: 8AM to 12PM
+      for (let hour = 8; hour <= 12; hour++) {
+        times.push(`${hour.toString().padStart(2, '0')}:00`);
+        if (hour !== 12) { // Don't add :30 for 12PM
+          times.push(`${hour.toString().padStart(2, '0')}:30`);
+        }
+      }
+      
+      // Afternoon slots: 1PM to 5PM
+      for (let hour = 13; hour <= 17; hour++) {
+        times.push(`${hour.toString().padStart(2, '0')}:00`);
+        if (hour !== 17) { // Don't add :30 for 5PM
+          times.push(`${hour.toString().padStart(2, '0')}:30`);
+        }
+      }
+      
+      this.availableTimes = times;
     },
     async submitForm() {
       if (!this.form.consultation_category || !this.form.consultation_description || 
@@ -80,6 +103,9 @@ const FreeConsultationForm = {
     }
   },
   async mounted() {
+    // Generate available time slots
+    this.generateAvailableTimes();
+    
     // Fetch specializations first
     try {
       const baseUrl = window.API_BASE_URL;
@@ -117,7 +143,9 @@ const FreeConsultationForm = {
 
     this.form.lawyer_id = lawyerId;
     this.form.client_id = clientId;
-    this.form.consultation_fee = 0; // Free consultation
+    this.form.consultation_fee = 0; // Free consultation - fixed
+    this.form.consultation_mode = 'In-Person'; // Default to In-Person
+    this.form.payment_mode = 'Over the Counter'; // Hidden but stored
 
     await this.fetchLawyerInfo();
   },
@@ -152,7 +180,12 @@ const FreeConsultationForm = {
 
         <div class="form-group">
           <label>Time *</label>
-          <input type="time" v-model="form.consultation_time" required>
+          <select v-model="form.consultation_time" required>
+            <option value="">Select Time</option>
+            <option v-for="time in availableTimes" :key="time" :value="time">
+              {{ time }}
+            </option>
+          </select>
         </div>
 
         <div class="form-group">
@@ -166,15 +199,14 @@ const FreeConsultationForm = {
 
         <div class="form-group">
           <label>Mode</label>
-          <select v-model="form.consultation_mode">
-            <option value="Online">Online</option>
-            <option value="Face-to-Face">Face-to-Face</option>
+          <select v-model="form.consultation_mode" disabled>
+            <option value="In-Person">In-Person</option>
           </select>
         </div>
 
         <div class="form-group">
           <label>Fee</label>
-          <input type="text" value="Free" disabled>
+          <input type="text" value="Free (₱0)" disabled>
         </div>
 
         <button type="submit">Submit Free Consultation Request</button>

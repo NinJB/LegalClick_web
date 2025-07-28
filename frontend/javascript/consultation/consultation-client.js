@@ -49,15 +49,32 @@ const consultation = Vue.createApp({
       if (!res.ok) throw new Error('Failed to load consultations');
       const consultationsData = await res.json();
       this.consultations = consultationsData;
-      // Check for reviews for completed consultations
+      // Check for reviews for completed consultations and store review data
       await Promise.all(this.consultations.map(async (c) => {
         if (c.consultation_status === 'Completed') {
           try {
             const r = await fetch(`${baseUrl}/reviews/consultation/${c.consultation_id || c.id}/client/${this.clientId}`, {
               headers: { 'Authorization': 'Bearer ' + sessionStorage.getItem('jwt') }
             });
-            c._hasReview = r.ok;
-          } catch { c._hasReview = false; }
+            if (r.ok) {
+              const data = await r.json();
+              c._hasReview = true;
+              c._review = {
+                review_id: data.review_id,
+                rating: data.rating,
+                review_description: data.review_description
+              };
+            } else {
+              c._hasReview = false;
+              c._review = null;
+            }
+          } catch {
+            c._hasReview = false;
+            c._review = null;
+          }
+        } else {
+          c._hasReview = false;
+          c._review = null;
         }
       }));
       const lawyerIds = [...new Set(this.consultations.map(c => c.lawyer_id))];
@@ -154,26 +171,28 @@ const consultation = Vue.createApp({
       this.reviewError = '';
       this.reviewLoading = true;
       this.reviewForm = {
-        review_id: null,
+        review_id: consult._review ? consult._review.review_id : null,
         consultation_id: consult.consultation_id || consult.id,
         client_id: this.clientId,
         lawyer_id: consult.lawyer_id,
-        rating: 5,
-        review_description: ''
+        rating: consult._review ? consult._review.rating : 5,
+        review_description: consult._review ? consult._review.review_description : ''
       };
-      // Check if review exists
-      try {
-        const baseUrl = window.API_BASE_URL;
-        const res = await fetch(`${baseUrl}/reviews/consultation/${this.reviewForm.consultation_id}/client/${this.clientId}`, {
-          headers: { 'Authorization': 'Bearer ' + sessionStorage.getItem('jwt') }
-        });
-        if (res.ok) {
-          const data = await res.json();
-          this.reviewForm.review_id = data.review_id;
-          this.reviewForm.rating = data.rating;
-          this.reviewForm.review_description = data.review_description;
-        }
-      } catch (e) { /* No review yet, that's fine */ }
+      // If no review data, try to fetch (for safety)
+      if (!consult._review) {
+        try {
+          const baseUrl = window.API_BASE_URL;
+          const res = await fetch(`${baseUrl}/reviews/consultation/${this.reviewForm.consultation_id}/client/${this.clientId}`, {
+            headers: { 'Authorization': 'Bearer ' + sessionStorage.getItem('jwt') }
+          });
+          if (res.ok) {
+            const data = await res.json();
+            this.reviewForm.review_id = data.review_id;
+            this.reviewForm.rating = data.rating;
+            this.reviewForm.review_description = data.review_description;
+          }
+        } catch (e) { /* No review yet, that's fine */ }
+      }
       this.reviewLoading = false;
       this.showReviewModal = true;
     },
@@ -219,9 +238,15 @@ const consultation = Vue.createApp({
         // Refresh review status for the consultation
         const consultId = this.reviewForm.consultation_id;
         const consult = this.consultations.find(c => (c.consultation_id || c.id) === consultId);
-        if (consult) consult._hasReview = true;
+        if (consult) {
+          consult._hasReview = true;
+          consult._review = {
+            review_id: this.reviewForm.review_id || (await res.json()).review_id,
+            rating: this.reviewForm.rating,
+            review_description: this.reviewForm.review_description
+          };
+        }
         this.showReviewModal = false;
-        alert(this.reviewForm.review_id ? 'Review updated successfully!' : 'Review added successfully!');
       } catch (e) {
         this.reviewError = 'Failed to save review.';
       } finally {
@@ -344,8 +369,15 @@ const consultation = Vue.createApp({
           Click to Attach Payment Receipt
         </div>
         <template v-if="consult.consultation_status === 'Completed'">
-          <button v-if="!consult._hasReview" @click="openReviewModal(consult)" class="review-btn">Add Review</button>
-          <button v-else @click="openReviewModal(consult)" class="review-btn">Edit Review</button>
+          <div v-if="consult._hasReview && consult._review" class="review-summary" style="margin:0.5em 0 0.5em 0.5em; padding:0.5em; background:#f8f8f8; border-radius:6px;">
+            <div style="font-size:1.1em; font-weight:bold;">Your Review:</div>
+            <div style="margin:0.2em 0;">
+              <span v-for="n in 5" :key="n" class="review-star" :class="{ filled: n <= consult._review.rating }" style="color:#fbbf24; font-size:1.2em;">&#9733;</span>
+              <span style="margin-left:0.5em;">{{ consult._review.rating }} / 5</span>
+            </div>
+            <div style="margin-top:0.2em; color:#444;">{{ consult._review.review_description }}</div>
+          </div>
+          <button @click="openReviewModal(consult)" class="review-btn">{{ consult._hasReview ? 'Edit Review' : 'Add Review' }}</button>
         </template>
       </div>
 
