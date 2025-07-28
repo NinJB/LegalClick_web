@@ -180,7 +180,7 @@ const calendarApp = Vue.createApp({
           <h4>{{ formattedDate }}</h4>
           <ul v-if="dailyAppointments.length">
             <li v-for="appt in dailyAppointments" :key="appt.time">
-              <strong>{{ appt.time }}</strong>: {{ appt.title }}
+              <strong>{{ appt.time }}</strong> {{ appt.title }}
             </li>
           </ul>
           <p v-else>No appointments.</p>

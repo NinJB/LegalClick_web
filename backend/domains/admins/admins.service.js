@@ -18,7 +18,7 @@ export async function changeAdminPassword(req, res) {
     // Find user with role = 'Lawyer' and matching role_id
     const result = await client.query(
       'SELECT * FROM users WHERE role IN ($1, $2) AND role_id = $3',
-      ['PAO-Admin', 'OLBA-Admin', roleId]
+      ['paoadmin', 'olbaadmin', roleId]
     );
 
     if (result.rowCount === 0) {
@@ -41,7 +41,7 @@ export async function changeAdminPassword(req, res) {
 
     await client.query(
       'UPDATE users SET password = $1 WHERE role IN ($2, $3) AND role_id = $4',
-      [hashedPassword, 'PAO-Admin', 'OLBA-Admin', roleId]
+      [hashedPassword, 'paoadmin', 'olbaadmin', roleId]
     );
 
     await client.query(
@@ -95,7 +95,7 @@ export async function updateAdmin(req, res) {
          FROM users
         WHERE role_id = $1
           AND (role = $2 OR role = $3)`,
-      [adminId, 'PAO-Admin', 'OLBA-Admin']
+      [adminId, 'paoadmin', 'olbaadmin']
     );
 
     if (userRes.rows.length === 0) {
@@ -162,20 +162,11 @@ export async function addAdmin(req, res) {
     const newAdminId = adminInsertResult.rows[0].admin_id;
 
     // 3. Map adminRole string to user role label
-    let roleLabel;
-    if (adminRole === 'paoadmin') {
-      roleLabel = 'PAO-Admin';
-    } else if (adminRole === 'olbaadmin') {
-      roleLabel = 'OLBA-Admin';
-    } else {
-      roleLabel = 'Admin'; // fallback or default
-    }
-
-    // 4. Insert new user record linked to the new admin
+    // 4. Insert new user record linked to the new admin (use lowercase role names consistently)
     await client.query(
       `INSERT INTO users (role_id, role, username, password, status, failed_attempts, locked_until)
        VALUES ($1, $2, $3, $4, 'Activated', 0, NULL)`,
-      [newAdminId, roleLabel, username, hashedPassword]
+      [newAdminId, adminRole, username, hashedPassword]
     );
 
     res.json({ success: true, message: "Admin and user account added successfully." });

@@ -58,12 +58,17 @@ const consultation = Vue.createApp({
             });
             if (r.ok) {
               const data = await r.json();
-              c._hasReview = true;
-              c._review = {
-                review_id: data.review_id,
-                rating: data.rating,
-                review_description: data.review_description
-              };
+              if (data.exists && data.review) {
+                c._hasReview = true;
+                c._review = {
+                  review_id: data.review.review_id,
+                  rating: data.review.rating,
+                  review_description: data.review.review_description
+                };
+              } else {
+                c._hasReview = false;
+                c._review = null;
+              }
             } else {
               c._hasReview = false;
               c._review = null;
@@ -170,30 +175,70 @@ const consultation = Vue.createApp({
     async openReviewModal(consult) {
       this.reviewError = '';
       this.reviewLoading = true;
-      // Always fetch the latest review from the backend
-      try {
-        const baseUrl = window.API_BASE_URL;
-        const res = await fetch(`${baseUrl}/reviews/consultation/${consult.consultation_id || consult.id}/client/${this.clientId}`, {
-          headers: { 'Authorization': 'Bearer ' + sessionStorage.getItem('jwt') }
-        });
-        if (res.ok) {
-          const data = await res.json();
-          this.reviewForm = {
-            review_id: data.review_id,
-            consultation_id: consult.consultation_id || consult.id,
-            client_id: this.clientId,
-            lawyer_id: consult.lawyer_id,
-            rating: data.rating,
-            review_description: data.review_description
-          };
-          consult._hasReview = true;
-          consult._review = {
-            review_id: data.review_id,
-            rating: data.rating,
-            review_description: data.review_description
-          };
-        } else {
-          // No review exists
+      
+      // Check if we already have review data from mounted()
+      if (consult._hasReview && consult._review) {
+        // Use existing review data
+        this.reviewForm = {
+          review_id: consult._review.review_id,
+          consultation_id: consult.consultation_id || consult.id,
+          client_id: this.clientId,
+          lawyer_id: consult.lawyer_id,
+          rating: consult._review.rating,
+          review_description: consult._review.review_description
+        };
+      } else {
+        // Always fetch the latest review from the backend
+        try {
+          const baseUrl = window.API_BASE_URL;
+          const res = await fetch(`${baseUrl}/reviews/consultation/${consult.consultation_id || consult.id}/client/${this.clientId}`, {
+            headers: { 'Authorization': 'Bearer ' + sessionStorage.getItem('jwt') }
+          });
+          if (res.ok) {
+            const data = await res.json();
+            if (data.exists && data.review) {
+              this.reviewForm = {
+                review_id: data.review.review_id,
+                consultation_id: consult.consultation_id || consult.id,
+                client_id: this.clientId,
+                lawyer_id: consult.lawyer_id,
+                rating: data.review.rating,
+                review_description: data.review.review_description
+              };
+              consult._hasReview = true;
+              consult._review = {
+                review_id: data.review.review_id,
+                rating: data.review.rating,
+                review_description: data.review.review_description
+              };
+            } else {
+              // No review exists
+              this.reviewForm = {
+                review_id: null,
+                consultation_id: consult.consultation_id || consult.id,
+                client_id: this.clientId,
+                lawyer_id: consult.lawyer_id,
+                rating: 5,
+                review_description: ''
+              };
+              consult._hasReview = false;
+              consult._review = null;
+            }
+          } else {
+            // No review exists
+            this.reviewForm = {
+              review_id: null,
+              consultation_id: consult.consultation_id || consult.id,
+              client_id: this.clientId,
+              lawyer_id: consult.lawyer_id,
+              rating: 5,
+              review_description: ''
+            };
+            consult._hasReview = false;
+            consult._review = null;
+          }
+        } catch (e) {
+          console.error('Error fetching review:', e);
           this.reviewForm = {
             review_id: null,
             consultation_id: consult.consultation_id || consult.id,
@@ -205,18 +250,8 @@ const consultation = Vue.createApp({
           consult._hasReview = false;
           consult._review = null;
         }
-      } catch (e) {
-        this.reviewForm = {
-          review_id: null,
-          consultation_id: consult.consultation_id || consult.id,
-          client_id: this.clientId,
-          lawyer_id: consult.lawyer_id,
-          rating: 5,
-          review_description: ''
-        };
-        consult._hasReview = false;
-        consult._review = null;
       }
+      
       this.reviewLoading = false;
       this.showReviewModal = true;
     },

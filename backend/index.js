@@ -109,7 +109,6 @@ const protectedRoutes = [
   ['/api/consultations-lawyer', 'get'],
   ['/consultations', 'get'],
   ['/api/lawyer-services', 'get'],
-  ['/api/admins/role/:adminId', 'get'],
   ['/api/view-specializations', 'get'],
   ['/api/lawyers/:lawyerId/consultations', 'get'],
   ['/api/lawyers/:lawyerId/logs', 'get'],

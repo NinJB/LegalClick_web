@@ -13,13 +13,11 @@ const search = Vue.createApp({
       lawyerAvailability: null,
       lawyerServices: null,
       specializations: [],
-
-      showMismatchPopup: false,
-      lawyerServicesList: [], // to check loggedInRoleId against lawyer_id
-      roleId: '',
       reviews: [], // For lawyer reviews
       averageRating: null, // For average rating
       reviewsLoading: false, // For loading state
+      showSetupPopup: false, // For setup reminder popup
+      attorneyCategory: null // Track logged-in attorney category
     };
   },
   computed: {
@@ -82,27 +80,27 @@ const search = Vue.createApp({
   },
   methods: {
     fetchLawyers() {
-      const baseUrl = window.API_BASE_URL;
-      let url = `${baseUrl}/lawyers`;
-      const params = new URLSearchParams();
+        const baseUrl = window.API_BASE_URL;
+        let url = `${baseUrl}/lawyers`;
+        const params = new URLSearchParams();
 
-      if (this.selectedSpecialization !== 'Select') {
-        const specialization_id = this.getSpecializationId(this.selectedSpecialization);
-        if (specialization_id) {
-          params.append('specialization_id', specialization_id);
+        if (this.selectedSpecialization !== 'Select') {
+          const specialization_id = this.getSpecializationId(this.selectedSpecialization);
+          if (specialization_id) {
+            params.append('specialization_id', specialization_id);
+          }
         }
-      }
 
-      if (params.toString()) {
-        url += `?${params.toString()}`;
-      }
+        if (params.toString()) {
+          url += `?${params.toString()}`;
+        }
 
-      fetch(url, { headers: { 'Authorization': 'Bearer ' + sessionStorage.getItem('jwt') } })
-        .then(res => res.json())
-        .then(data => {
-          this.lawyers = data;
-        })
-        .catch(err => console.error('Error fetching lawyers:', err));
+        fetch(url, { headers: { 'Authorization': 'Bearer ' + sessionStorage.getItem('jwt') } })
+          .then(res => res.json())
+          .then(data => {
+            this.lawyers = data;
+          })
+          .catch(err => console.error('Error fetching lawyers:', err));
     },
     fetchSpecializations() {
       const baseUrl = window.API_BASE_URL;
@@ -123,7 +121,7 @@ const search = Vue.createApp({
     openPopup(lawyer) {
       this.selectedLawyer = lawyer;
       this.fetchLawyerDetails(lawyer.lawyer_id);
-      this.fetchLawyerReviews(lawyer.lawyer_id);
+      this.fetchLawyerReviews(lawyer.lawyer_id); // Fetch reviews when opening popup
     },
     closePopup() {
       this.selectedLawyer = null;
@@ -135,9 +133,12 @@ const search = Vue.createApp({
       fetch(`${baseUrl}/lawyer-details/${lawyer_id}`, { headers: { 'Authorization': 'Bearer ' + sessionStorage.getItem('jwt') } })
         .then(res => res.json())
         .then(data => {
+          console.log(data);  // Debugging: Check the full data structure
+
           this.lawyerAvailability = data.availability;
           this.lawyerServices = data.services;
 
+          // Update the selectedLawyer with additional details from the backend
           if (data.profile) {
             this.selectedLawyer = {
               ...this.selectedLawyer,
@@ -169,14 +170,6 @@ const search = Vue.createApp({
           this.reviewsLoading = false;
         });
     },
-    formatTime(time) {
-      if (!time) return 'N/A';
-      const [hours, minutes] = time.split(':');
-      const hour = parseInt(hours);
-      const ampm = hour >= 12 ? 'PM' : 'AM';
-      const displayHour = hour === 0 ? 12 : hour > 12 ? hour - 12 : hour;
-      return `${displayHour}:${minutes} ${ampm}`;
-    },
     goToBookingForm() {
       if (!this.selectedLawyer) {
         alert('No lawyer selected. Please click on a lawyer card first.');
@@ -198,25 +191,34 @@ const search = Vue.createApp({
       sessionStorage.setItem('selectedLawyerId', lawyerId);
       window.location.href = `/html/client/form.html`;
     },
-    fetchLawyerServicesList() {
+    async checkCurrentUserSetup() {
+      if (!this.loggedInRoleId) return;
+      
       const baseUrl = window.API_BASE_URL;
-      fetch(`${baseUrl}/lawyer-services`, { headers: { 'Authorization': 'Bearer ' + sessionStorage.getItem('jwt') } })  // expects array here
-      .then(res => res.json())
-      .then(data => {
-        this.lawyerServicesList = data;  // now an array
-
-        const isLawyer = this.lawyerServicesList.some(service => service.lawyer_id == this.loggedInRoleId);
-        if (!isLawyer && this.loggedInRoleId !== null) {
-          this.showMismatchPopup = true;
+      try {
+        const response = await fetch(`${baseUrl}/lawyer-details/${this.loggedInRoleId}`, {
+          headers: { 'Authorization': 'Bearer ' + sessionStorage.getItem('jwt') }
+        });
+        const data = await response.json();
+        
+        // If the current public attorney hasn't set up their office hours, show popup
+        if (!data.availability) {
+          this.showSetupPopup = true;
         }
-      })
-      .catch(err => console.error('Error fetching lawyer services:', err));
+      } catch (error) {
+        console.error('Error checking user setup:', error);
+      }
     },
-    closeMismatchPopup() {
-      this.showMismatchPopup = false;
+    formatTime(time) {
+      if (!time) return 'N/A';
+      const [hours, minutes] = time.split(':');
+      const hour = parseInt(hours);
+      const ampm = hour >= 12 ? 'PM' : 'AM';
+      const displayHour = hour === 0 ? 12 : hour > 12 ? hour - 12 : hour;
+      return `${displayHour}:${minutes} ${ampm}`;
     }
   },
-  watch: {
+watch: {
     selectedSpecialization() {
       this.fetchLawyers();
     }
@@ -226,16 +228,18 @@ const search = Vue.createApp({
     const token = sessionStorage.getItem('jwt');
     if (!token) {
       this.loggedInRoleId = null;
+      this.attorneyCategory = null;
     } else {
       const payload = window.decodeJWT ? window.decodeJWT(token) : JSON.parse(atob(token.split('.')[1]));
       this.loggedInRoleId = payload && payload.role_id;
+      this.attorneyCategory = payload && payload.attorney_category;
     }
-    this.fetchSpecializations();
+    this.fetchSpecializations();  // fetch specializations first
     this.fetchLawyers();
-    this.fetchLawyerServicesList();
+    this.checkCurrentUserSetup(); // Check if the current user (public attorney) has set up their office hours
   },
   template: `
-        <div class="search__container">
+    <div class="search__container">
       <div class="search__bar">
         <label class="search__bar-label">Search:</label>
         <input v-model="searchQuery" class="search__bar-input" placeholder="Search here...">
@@ -332,6 +336,8 @@ const search = Vue.createApp({
                 <p><strong>Consultation:</strong> ₱{{ lawyerServices?.consultation ?? 'N/A' }} per hour</p>
                 <p><strong>Representation:</strong> ₱{{ lawyerServices?.representation_min ?? 'N/A' }} - ₱{{ lawyerServices?.representation_max ?? 'N/A' }}</p>
               </template>
+
+                              <!-- No booking or messaging buttons for public attorney search page -->
             </div>
 
             <div class="popup-column">
@@ -362,15 +368,17 @@ const search = Vue.createApp({
           </div>
     </div>
 
-    <!-- Mismatch Popup -->
-    <div v-if="showMismatchPopup" class="popup-overlay" @click.self="closeMismatchPopup">
+    <!-- Setup Reminder Popup -->
+    <div v-if="showSetupPopup" class="popup-overlay">
       <div class="complete-setup">
         <h3>Complete Your Profile Set-up</h3>
         <img src="/images/popup-reminder.gif" class="reminder">
-        <p>Attorney, please set-up your lawyer services and specializations to receive consultations. Thank you!</p>
+        <p>Attorney, please set-up your office hours to receive consultations. Thank you!</p>
         <div class="buttons-setup">
-          <button @click="closeMismatchPopup" class="skip">Skip</button>
-          <a :href="'/html/lawyer/specialization.html'"><button class="proceed">Finish Set-Up</button></a>
+          <button @click="showSetupPopup = false" class="skip">Skip</button>
+          <a :href="attorneyCategory === 'Public' ? '/html/lawyer/office-hours.html' : '/html/lawyer/specialization.html'">
+            <button class="proceed">Finish Set-Up</button>
+          </a>
         </div>
       </div>
     </div>
