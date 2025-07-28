@@ -16,12 +16,24 @@ const app = Vue.createApp({
       showNotifications: false,
       notifications: [],
       unreadCount: 0,
+      consultationCount: 0,
       roleId: roleId
     };
   },
   methods: {
     toggleProfileMenu(state) {
       this.showProfileMenu = state;
+    },
+    logout() {
+      // Clear all session data
+      sessionStorage.clear();
+      localStorage.clear();
+      // Clear browser history and redirect to login page
+      window.location.replace('/index.html');
+      // Clear all history entries
+      window.history.pushState(null, '', '/index.html');
+      window.history.pushState(null, '', '/index.html');
+      window.history.pushState(null, '', '/index.html');
     },
     async fetchNotifications() {
       const baseUrl = window.API_BASE_URL;
@@ -43,12 +55,14 @@ const app = Vue.createApp({
           return `Atty. ${attorneyLast} has rescheduled your consultation.`;
         case 'rejected':
           return `Atty. ${attorneyLast} has rejected your consultation.`;
+        case 'approved_online':
+          return `Atty. ${attorneyLast} has approved your consultation. Please proceed to pay your consultation via GCASH.`;
         case 'approved':
           return `Atty. ${attorneyLast} has approved your consultation.`;
-        case 'application':
-          return `Secretary ${secretaryLast} has sent an application.`;
-        case 'accepted':
-          return `Atty. ${attorneyLast} has approved your application.`;
+        case 'payment_confirmed':
+          return `Atty. ${attorneyLast} has confirmed your payment.`;
+        case 'payment_denied':
+          return `Atty. ${attorneyLast} has denied the legitimacy of your receipt. Please proceed to attach another one.`;
         default:
           return 'You have a new notification.';
       }
@@ -79,7 +93,7 @@ const app = Vue.createApp({
     },
     handleNotificationClick(notif) {
       // Navigation by purpose
-      if (notif.notification_purpose === 'request' || notif.notification_purpose === 'rejected' || notif.notification_purpose === 'approved' || notif.notification_purpose === 'accepted') {
+      if (notif.notification_purpose === 'request' || notif.notification_purpose === 'rejected' || notif.notification_purpose === 'approved' || notif.notification_purpose === 'approved_online' || notif.notification_purpose === 'accepted' || notif.notification_purpose === 'payment_denied' || notif.notification_purpose === 'payment_confirmed') {
         window.location.href = '/html/client/consultation.html';
       } else if (notif.notification_purpose === 'application') {
         window.location.href = '/html/client/search.html';
@@ -93,9 +107,33 @@ const app = Vue.createApp({
         this.fetchNotifications();
       }
     },
+    async fetchConsultationCount() {
+      try {
+        const baseUrl = window.API_BASE_URL;
+        const res = await fetch(`${baseUrl}/consultations-client?client_id=${this.roleId}`, {
+          headers: { 'Authorization': 'Bearer ' + sessionStorage.getItem('jwt') }
+        });
+        if (res.ok) {
+          const consultations = await res.json();
+          // Count only pending, unpaid, and upcoming consultations
+          this.consultationCount = consultations.filter(c => 
+            ['Pending', 'Unpaid', 'Upcoming'].includes(c.consultation_status)
+          ).length;
+        }
+      } catch (error) {
+        console.error('Error fetching consultation count:', error);
+      }
+    },
   },
   mounted() {
+    // Check if user is authenticated
+    const token = sessionStorage.getItem('jwt');
+    if (!token) {
+      window.location.href = '/index.html';
+      return;
+    }
     this.fetchNotifications();
+    this.fetchConsultationCount();
   },
   template: `
     <div class="layout">
@@ -135,7 +173,7 @@ const app = Vue.createApp({
             </div>
             <div v-show="showProfileMenu" class="profile-menu">
               <a href="/html/client/profile.html">Profile</a>
-              <a href="/index.html">Logout</a>
+              <a href="#" @click="logout">Logout</a>
             </div>
           </div>
         </div>
@@ -159,6 +197,7 @@ const app = Vue.createApp({
           <a href="/html/client/consultation.html" class="chosen-dashboard" data-icon="consultation">
             <div class="icon-wrapper">
               <img src="/images/consultation-gray.png" class="icon-img" />
+              <span v-if="consultationCount > 0" class="consultation-badge">{{ consultationCount }}</span>
               <span class="icon-label">Consultations</span>
             </div>
           </a>

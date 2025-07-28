@@ -43,7 +43,7 @@ const consultation = Vue.createApp({
     this.loading = true;
     try {
       const baseUrl = window.API_BASE_URL;
-      const res = await fetch(`${baseUrl}/consultations?client_id=${this.clientId}`, {
+      const res = await fetch(`${baseUrl}/consultations-client?client_id=${this.clientId}`, {
         headers: { 'Authorization': 'Bearer ' + sessionStorage.getItem('jwt') }
       });
       if (!res.ok) throw new Error('Failed to load consultations');
@@ -83,10 +83,22 @@ const consultation = Vue.createApp({
   },
   computed: {
     filteredConsultations() {
-      // Sort by consultation_date ascending (soonest first)
-      return this.consultations
-        .filter(c => c.consultation_status === this.selectedStatus)
-        .sort((a, b) => new Date(a.consultation_date) - new Date(b.consultation_date));
+      let filtered = this.consultations.filter(c => c.consultation_status === this.selectedStatus);
+      if (this.selectedStatus === 'Completed') {
+        // Sort by consultation_date descending (most recent first)
+        return filtered.sort((a, b) => new Date(b.consultation_date) - new Date(a.consultation_date));
+      } else {
+        // Sort by consultation_date ascending (soonest first)
+        return filtered.sort((a, b) => new Date(a.consultation_date) - new Date(b.consultation_date));
+      }
+    },
+    statusCounts() {
+      const counts = {};
+      const statuses = ['Pending', 'Unpaid', 'Upcoming', 'Rejected'];
+      statuses.forEach(status => {
+        counts[status] = this.consultations.filter(c => c.consultation_status === status).length;
+      });
+      return counts;
     }
   },
   methods: {
@@ -94,8 +106,12 @@ const consultation = Vue.createApp({
       this.selectedStatus = status;
       this.selectedConsultation = null;
     },
-    openPopup(consult) {
+    async openPopup(consult) {
       this.selectedConsultation = consult;
+      // Check if there's a payment receipt for unpaid consultations
+      if (consult.consultation_status === 'Unpaid') {
+        consult._hasReceipt = await this.checkPaymentReceipt(consult);
+      }
     },
     closePopup() {
       this.selectedConsultation = null;
@@ -205,6 +221,7 @@ const consultation = Vue.createApp({
         const consult = this.consultations.find(c => (c.consultation_id || c.id) === consultId);
         if (consult) consult._hasReview = true;
         this.showReviewModal = false;
+        alert(this.reviewForm.review_id ? 'Review updated successfully!' : 'Review added successfully!');
       } catch (e) {
         this.reviewError = 'Failed to save review.';
       } finally {
@@ -256,12 +273,9 @@ const consultation = Vue.createApp({
           headers: { 'Authorization': 'Bearer ' + sessionStorage.getItem('jwt') }
         });
         if (!res.ok) throw new Error('Failed to upload payment proof');
-        // Update status locally
-        this.selectedConsultation.consultation_status = 'Pending-Paid';
-        const idx = this.consultations.findIndex(c => c.consultation_id === this.selectedConsultation.consultation_id);
-        if (idx !== -1) this.consultations[idx].consultation_status = 'Pending-Paid';
+        // Keep status as Unpaid (don't change automatically)
         this.closePayModal();
-        alert('Payment proof submitted!');
+        alert('Payment proof submitted! The lawyer will review your receipt.');
       } catch (err) {
         this.payError = 'Failed to upload payment proof.';
       } finally {
@@ -277,13 +291,33 @@ const consultation = Vue.createApp({
       this.closePopup();
       this.openPayModal(consult);
     },
+    async checkPaymentReceipt(consultation) {
+      try {
+        const baseUrl = window.API_BASE_URL;
+        const res = await fetch(`${baseUrl}/payments/receipt/${consultation.consultation_id || consultation.id}`, {
+          headers: { 'Authorization': 'Bearer ' + sessionStorage.getItem('jwt') }
+        });
+        return res.ok; // Returns true if receipt exists, false if not found
+      } catch {
+        return false;
+      }
+    },
   },
   template: `
     <div class="consultation__container">
       <div class="consultation__status">
-        <button class="consultation__button" :class="{ active: selectedStatus === 'Pending' }" @click="setStatus('Pending')">Pending</button>
-        <button class="consultation__button" :class="{ active: selectedStatus === 'Unpaid' }" @click="setStatus('Unpaid')">Unpaid</button>
-        <button class="consultation__button" :class="{ active: selectedStatus === 'Upcoming' }" @click="setStatus('Upcoming')">Upcoming</button>
+        <button class="consultation__button" :class="{ active: selectedStatus === 'Pending' }" @click="setStatus('Pending')">
+          Pending
+          <span v-if="statusCounts.Pending > 0" class="status-count">{{ statusCounts.Pending }}</span>
+        </button>
+        <button class="consultation__button" :class="{ active: selectedStatus === 'Unpaid' }" @click="setStatus('Unpaid')">
+          Unpaid
+          <span v-if="statusCounts.Unpaid > 0" class="status-count">{{ statusCounts.Unpaid }}</span>
+        </button>
+        <button class="consultation__button" :class="{ active: selectedStatus === 'Upcoming' }" @click="setStatus('Upcoming')">
+          Upcoming
+          <span v-if="statusCounts.Upcoming > 0" class="status-count">{{ statusCounts.Upcoming }}</span>
+        </button>
         <button class="consultation__button" :class="{ active: selectedStatus === 'Rejected' }" @click="setStatus('Rejected')">Rejected</button>
         <button class="consultation__button" :class="{ active: selectedStatus === 'Completed' }" @click="setStatus('Completed')">Completed</button>
       </div>
@@ -302,7 +336,7 @@ const consultation = Vue.createApp({
             </strong><br>
             Date Issued: {{ formatDate(consult.created_at || consult.consultation_date) }}<br>
             <p>Status: <span :class="statusColor(consult.consultation_status)" style="font-weight:bold;">
-               {{ consult.consultation_status }}
+               {{ consult.consultation_status === 'Unpaid' && consult._hasReceipt ? 'Payment Receipt Attached' : consult.consultation_status }}
             </span></p>
           </div>
         </div>
@@ -330,9 +364,12 @@ const consultation = Vue.createApp({
             <div><span class="detail-label">Fee:</span> <span class="detail-value">₱{{ selectedConsultation.consultation_fee }}</span></div>
             <div><span class="detail-label">Mode:</span> <span class="detail-value">{{ selectedConsultation.consultation_mode }}</span></div>
             <div><span class="detail-label">Payment:</span> <span class="detail-value">{{ selectedConsultation.payment_mode }}</span></div>
-            <div><span class="detail-label">Status:</span> <span class="detail-value">{{ selectedConsultation.consultation_status }}</span></div>
+            <div><span class="detail-label">Status:</span> <span class="detail-value">{{ selectedConsultation.consultation_status === 'Unpaid' && selectedConsultation._hasReceipt ? 'Payment Receipt Attached' : selectedConsultation.consultation_status }}</span></div>
           </div>
-          <button v-if="selectedConsultation.consultation_status === 'Unpaid'" @click="payFromDetails" class="review-modal-submit">Pay</button>
+          <button v-if="selectedConsultation.consultation_status === 'Unpaid' && !selectedConsultation._hasReceipt" @click="payFromDetails" class="review-modal-submit">Pay</button>
+          <div v-if="selectedConsultation.consultation_status === 'Unpaid' && selectedConsultation._hasReceipt" style="margin-top:15px; color:#666; font-style:italic;">
+            Payment receipt submitted. Waiting for lawyer verification.
+          </div>
           <button v-if="selectedConsultation.consultation_status === 'Completed'" @click="fetchLawyerRecommendation(selectedConsultation.consultation_id)" class="view-recommendation-button review-modal-submit" style="margin-bottom:1em;">View Recommendation</button>
         </div>
       </div>

@@ -551,15 +551,24 @@ export async function getLawyers(req, res) {
 
     if (specialization_id) {
       query += `
-        INNER JOIN lawyer_specializations lsp 
-        ON l.lawyer_id = lsp.lawyer_id 
-        AND lsp.specialization_id = $1
+        WHERE l.account_status = 'Activated'
+        AND (
+          l.attorney_category = 'Public' 
+          OR l.lawyer_id IN (
+            SELECT lsp.lawyer_id 
+            FROM lawyer_specializations lsp 
+            WHERE lsp.specialization_id = $1
+          )
+        )
       `;
       values.push(parseInt(specialization_id));
+    } else {
+      query += `
+        WHERE l.account_status = 'Activated'
+      `;
     }
 
     query += `
-      WHERE l.account_status = 'Activated'
       GROUP BY 
         l.lawyer_id, 
         l.first_name, 
@@ -657,3 +666,38 @@ export async function updateLawyerProfile(req, res) {
     res.status(500).json({ error: 'Internal server error' });
   }
 };
+
+export async function getLawyerSetup(req, res) {
+  const lawyerId = req.params.id;
+  try {
+    // Get specializations
+    const specResult = await client.query(
+      'SELECT specialization_id FROM lawyer_specializations WHERE lawyer_id = $1',
+      [lawyerId]
+    );
+    const specializations = specResult.rows.map(row => row.specialization_id);
+
+    // Get availability
+    const availResult = await client.query(
+      'SELECT morning_start, morning_end, evening_start, evening_end, workday_start, workday_end FROM lawyer_availability WHERE lawyer_id = $1',
+      [lawyerId]
+    );
+    const availability = availResult.rows[0] || null;
+
+    // Get services
+    const servResult = await client.query(
+      'SELECT consultation, representation_min, representation_max FROM lawyer_services WHERE lawyer_id = $1',
+      [lawyerId]
+    );
+    const services = servResult.rows[0] || null;
+
+    res.json({
+      specializations,
+      availability,
+      services
+    });
+  } catch (err) {
+    console.error('Error fetching lawyer setup:', err);
+    res.status(500).json({ error: 'Failed to fetch lawyer setup' });
+  }
+}

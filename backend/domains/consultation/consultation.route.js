@@ -5,8 +5,8 @@ import { createConsultation,getConsultationsByClientId, updateConsultationStatus
 const router = Router();
 
 router.post('/consultation', upload.none(), createConsultation);
-router.get('/consultations/by-clientId', getConsultationsByClientId); //* changed route name from `/api/consultations`
-router.get('/consultations/by-lawerId', getConsultationsByLawyerId); //* changed route name from `/consultations`
+router.get('/consultations-client', getConsultationsByClientId);
+router.get('/consultations-lawyer', getConsultationsByLawyerId);
 router.patch('/consultations-update/:consultation_id', patchConsultationStatus);
 router.post('/consultations-update/:id', updateConsultationStatus);
 router.patch('/consultations-reschedule/:consultation_id', rescheduleConsultation);

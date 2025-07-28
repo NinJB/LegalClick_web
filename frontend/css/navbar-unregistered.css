@@ -9,6 +9,7 @@
     left: 0;
     width: 100%;
     height: 5em;
+    padding: 1em;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); /* Fix alpha value */
     background-color: transparent;
     box-shadow: none;
@@ -31,7 +32,6 @@
 
 .navbar__item {
     display: inline-block;
-    margin: 1.5em 3em;
 }
 
 .navbar__button {
@@ -56,21 +56,15 @@
     color: inherit;
 }
 
-.navbar__logo{
-    width: 10em;
-    padding-right: 15em;
-    margin-bottom: -1.2em;
-}
-
 #sign-up{
     background-color: rgb(250, 127, 26);
     color: #fafafa;
     border-radius: 5em;
     border: 1px solid rgb(250, 127, 26);
     padding: 1em;
-    margin-right: -5em;
+    margin-right: 1em;
     transition: transform 0.5s ease;
-    margin-left: 70em;
+    margin-left: 55em;
 }
 
 #sign-up:hover{
@@ -93,10 +87,164 @@
 }
 
 .white-logo {
-    width: 10em;
-    margin: 0;
+    width: 15%;
     padding: 0;
     justify-self: center;
-    margin-bottom: -1em;
+    margin-bottom: -2em;
     margin-left: 3em;
+    
 }
+
+/********************************************************************************************************************/
+/*****************************************MOBILE RESPONSIVE*************************************************/
+/*PHONES*/
+@media screen and (max-width: 595px){
+    .navigation{
+        display: flex;
+        flex-direction: column;
+    }
+
+    .navbar__container {
+        display: flexbox;
+        grid-column: 3;
+        justify-content: space-between; /* logo left, buttons right */
+        align-items: center;
+        color: rgb(250, 127, 26);
+        padding: 0;
+    }
+
+    .white-logo{
+        display: flex;
+        width: 8em;
+        margin-left: 2%;
+    }
+
+    .navbar__item {
+        display: flex;
+        margin: 0em;
+    }
+
+    .navbar__button {
+        transform: scale(0.7);
+        margin: 0 ;
+    }
+
+    #sign-up{
+        justify-self: center;  
+        margin: 0; 
+    }
+
+    #log-in{
+        justify-self: center;
+        margin: 0;
+    }
+
+    .navbar{
+        display: flex;
+        padding: 1%;
+    }
+}
+/*******************************************************************************************************************/
+/*TABLET*/
+@media screen and (min-width: 768px) and (max-width: 768px){
+    .navigation{
+        display: flex;
+        flex-direction: column;
+    }
+
+    .navbar__container {
+        display: flexbox;
+        grid-column: 3;
+        justify-content: space-between; /* logo left, buttons right */
+        align-items: center;
+        color: rgb(250, 127, 26);
+        padding: 0;
+    }
+
+    .white-logo{
+        display: flex;
+        width: 12em;
+        margin-left: 1em;
+    }
+
+    .navbar__item {
+        display: flex;
+        margin: 0em;
+    }
+
+    .navbar__button {
+        transform: scale(0.8);
+        margin: 0 ;
+    }
+
+    #sign-up{
+        justify-self: center;  
+        margin: 1em; 
+        margin-left: 1em;
+    }
+
+    #log-in{
+        justify-self: center;
+        margin: 1em;
+        margin-left: 0;
+    }
+
+    .navbar{
+        display: flex;
+        padding: 1%;
+    }
+}
+
+/*******************************************************************************************************************/
+/*SCREEN LAPTOPS // DESKTOPS*/
+@media screen and (min-width: 2560px) and (max-width: 2560px){
+    .navigation{
+        display: flex;
+        flex-direction: column;
+    }
+
+    .navbar__container {
+        display: flexbox;
+        grid-column: 3;
+        justify-content: space-between; /* logo left, buttons right */
+        align-items: center;
+        color: rgb(250, 127, 26);
+        padding: 0;
+    }
+
+    .white-logo{
+        display: flex;
+        width: 23em;
+        margin-left: 1em;
+        margin-top: -2em;
+    }
+
+    .navbar__item {
+        display: flex;
+        margin: 0em;
+    }
+
+    .navbar__button {
+        transform: scale(2);
+        margin: 0 ;
+    }
+
+    #sign-up{
+        justify-self: center;  
+        margin: 1em; 
+        margin-left: 10em;
+    }
+
+    #log-in{
+        justify-self: center;
+        margin: 1em;
+        margin-left: 10em;
+    }
+
+    .navbar{
+        display: flex;
+        padding: 1%;
+    }
+}
+
+/*******************************************************************************************************************/

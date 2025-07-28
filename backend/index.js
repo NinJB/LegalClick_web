@@ -90,6 +90,8 @@ const protectedRoutes = [
   // All routes that need authentication
   // GET
   ['/api/lawyers', 'get'],
+  ['/api/public-lawyers', 'get'],
+  ['/api/private-lawyers', 'get'],
   ['/api/lawyer/by-role/:roleId', 'get'],
   ['/api/client/by-role/:roleId', 'get'],
   ['/api/admin/by-role/:roleId', 'get'],
@@ -103,6 +105,8 @@ const protectedRoutes = [
   ['/api/lawyer_availability/:lawyerId', 'get'],
   ['/api/lawyer_services/:lawyerId', 'get'],
   ['/api/consultations', 'get'],
+  ['/api/consultations-client', 'get'],
+  ['/api/consultations-lawyer', 'get'],
   ['/consultations', 'get'],
   ['/api/lawyer-services', 'get'],
   ['/api/admins/role/:adminId', 'get'],
@@ -137,8 +141,11 @@ const protectedRoutes = [
   ['/api/reviews', 'post'],
   ['/api/payments/upload', 'post'],
   ['/api/payments/confirm', 'post'],
+  ['/api/payments/deny', 'post'],
   ['/api/consultations/complete-paid/:consultation_id', 'post'],
   // PUT
+  ['/api/public-lawyers/:lawyer_id/status', 'put'],
+  ['/api/private-lawyers/:lawyer_id/status', 'put'],
   ['/api/lawyer/update/:lawyerId', 'put'],
   ['/api/client/update/:client_id', 'put'],
   ['/api/admin/update/:adminId', 'put'],

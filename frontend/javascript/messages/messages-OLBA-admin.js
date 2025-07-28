@@ -10,14 +10,14 @@ const messages = Vue.createApp({
     },
     methods: {
       async loadContacts() {
-        const res = await axios.get('/contacts');
+        const res = await axios.get('/api/contacts');
         this.contacts = res.data;
         if (this.contacts.length) this.currentContact = this.contacts[0];
       },
       async loadMessages() {
         if (!this.currentContact) return;
         this.loadingMessages = true;
-        const res = await axios.get(`/messages?contactId=${this.currentContact.id}`);
+        const res = await axios.get(`/api/messages?contactId=${this.currentContact.id}`);
         this.messages = res.data;
         this.loadingMessages = false;
       },
@@ -28,7 +28,7 @@ const messages = Vue.createApp({
           text: this.messageText,
           sender: 'me'
         };
-        await axios.post('/messages', newMessage);
+        await axios.post('/api/messages', newMessage);
         this.messageText = '';
         await this.loadMessages();
       },

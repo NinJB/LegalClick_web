@@ -80,13 +80,17 @@ const secretaryProfile = Vue.createApp({
       const baseUrl = window.API_BASE_URL;
       const response = await fetch(`${baseUrl}/secretary/update/${this.secretary.secretary_id}`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + sessionStorage.getItem('jwt')
+        },
         body: JSON.stringify(updateData)
       });
 
       if (!response.ok) {
-        console.error('Failed to update profile:', response.status, await response.text());
-        alert('Profile update failed!');
+        const errorText = await response.text();
+        console.error('Failed to update profile:', response.status, errorText);
+        alert('Profile update failed! ' + errorText);
         return;
       }
 

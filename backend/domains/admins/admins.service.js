@@ -182,3 +182,24 @@ export async function addAdmin(req, res) {
     res.status(500).json({ success: false, message: "Error adding admin and user account." });
   }
 };
+
+export async function getAdminsByRole(req, res) {
+  const { roleId } = req.params;
+  try {
+    // Get the role of the requesting admin
+    const roleRes = await client.query('SELECT role FROM admin WHERE admin_id = $1', [roleId]);
+    if (roleRes.rows.length === 0) return res.status(404).json({ error: 'Admin not found' });
+    const adminRole = roleRes.rows[0].role;
+    // Get all admins with the same role
+    const adminsRes = await client.query(
+      `SELECT a.admin_id, a.first_name, a.last_name, a.email, a.contact_number, a.username
+       FROM admin a
+       WHERE a.role = $1`,
+      [adminRole]
+    );
+    res.json(adminsRes.rows);
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ error: 'Server error' });
+  }
+}

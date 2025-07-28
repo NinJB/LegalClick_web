@@ -55,6 +55,21 @@ const Password = Vue.createApp({
         } catch (err) {
           this.error = 'Server error. Please try again.';
         }
+      },
+      goToLawyerSetup() {
+        // Decode JWT from sessionStorage
+        const token = sessionStorage.getItem('jwt');
+        if (!token) {
+          window.location.href = '/html/lawyer/specialization.html';
+          return;
+        }
+        const payload = window.decodeJWT ? window.decodeJWT(token) : JSON.parse(atob(token.split('.')[1]));
+        const attorneyCategory = payload && payload.attorney_category;
+        if (attorneyCategory === 'Public') {
+          window.location.href = '/html/lawyer/office-hours.html';
+        } else {
+          window.location.href = '/html/lawyer/specialization.html';
+        }
       }
     },
     template: `
@@ -65,7 +80,7 @@ const Password = Vue.createApp({
           </div>
           <div class="profile__options">
             <a href="/html/lawyer/profile.html"><button>Profile Information</button></a>
-            <a href="/html/lawyer/specialization.html"><button>Lawyer Setup</button></a>
+            <a><button @click="goToLawyerSetup">Lawyer Setup</button></a>
             <a><button>Change Password</button></a>
           </div>
       </section>

@@ -60,15 +60,15 @@ const Login = Vue.createApp({
         };
         // Redirect based on role (no role_id in URL)
         const routeMap = {
-          'Lawyer': '/html/lawyer/search.html',
+          'Lawyer': data.attorney_category === 'Public' ? '/html/lawyer/search-public.html' : '/html/lawyer/search.html',
           'Client': '/html/client/search.html',
           'PAO-Admin': '/html/PAO-admin/lawyers.html',
-          'OLBA-Admin': '/html/OLBA-Admin/lawyers.html',
+          'OLBA-Admin': '/html/OLBA-admin/lawyers.html', // fixed: lowercase 'a'
           'Secretary': '/html/secretary/search.html'
         };
         const redirectUrl = routeMap[data.role];
         if (redirectUrl) {
-          window.location.href = redirectUrl;
+          window.location.replace(redirectUrl);
         } else {
           this.error = 'Unknown role.';
         }

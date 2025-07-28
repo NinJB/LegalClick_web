@@ -6,26 +6,41 @@ const app = Vue.createApp({
   data() {
     // Decode JWT from sessionStorage
     let roleId = null;
+    let attorneyCategory = null;
     const token = sessionStorage.getItem('jwt');
     if (token) {
       const payload = window.decodeJWT ? window.decodeJWT(token) : JSON.parse(atob(token.split('.')[1]));
       roleId = payload && payload.role_id;
+      attorneyCategory = payload && payload.attorney_category;
     }
     return {
       showProfileMenu: false,
       showNotifications: false,
       notifications: [],
       unreadCount: 0,
-      roleId: roleId
+      consultationCount: 0,
+      roleId: roleId,
+      attorneyCategory: attorneyCategory
     };
   },
   methods: {
     toggleProfileMenu(state) {
       this.showProfileMenu = state;
     },
+    logout() {
+      // Clear all session data
+      sessionStorage.clear();
+      localStorage.clear();
+      // Clear browser history and redirect to login page
+      window.location.replace('/index.html');
+      // Clear all history entries
+      window.history.pushState(null, '', '/index.html');
+      window.history.pushState(null, '', '/index.html');
+      window.history.pushState(null, '', '/index.html');
+    },
     async fetchNotifications() {
       const baseUrl = window.API_BASE_URL;
-      const res = await fetch(`${baseUrl}/notifications/lawyer?user_id=${this.roleId}`, { headers: { 'Authorization': 'Bearer ' + sessionStorage.getItem('jwt') } });
+      const res = await fetch(`${baseUrl}/api/notifications/lawyer?user_id=${this.roleId}`, { headers: { 'Authorization': 'Bearer ' + sessionStorage.getItem('jwt') } });
       if (res.ok) {
         this.notifications = await res.json();
         this.unreadCount = this.notifications.filter(n => n.notification_status !== 'read').length;
@@ -34,10 +49,14 @@ const app = Vue.createApp({
     formatNotificationMessage(notif) {
       let clientName = 'Client';
       if (
-        (notif.notification_purpose === 'request' || notif.notification_purpose === 'paid') &&
+        (notif.notification_purpose === 'request' || notif.notification_purpose === 'paid' || notif.notification_purpose === 'payment_receipt') &&
         notif.client_first_name && notif.client_last_name
       ){
         clientName = notif.client_first_name + ' ' + notif.client_last_name;
+      }
+      let secretaryName = 'Secretary';
+      if (notif.notification_purpose === 'application' && notif.secretary_first_name && notif.secretary_last_name) {
+        secretaryName = notif.secretary_first_name + ' ' + notif.secretary_last_name;
       }
       const attorneyLast = notif.attorney_last_name || notif.sender_last_name || 'Attorney';
       const secretaryLast = notif.secretary_last_name || notif.sender_last_name || 'Secretary';
@@ -46,6 +65,12 @@ const app = Vue.createApp({
           return `${clientName} sent you a consultation request.`;
         case 'paid':
           return `${clientName} has paid their online consultation.`;
+        case 'payment_receipt':
+          return `${clientName} has paid their consultation. Please verify the payment by checking the receipt.`;
+        case 'application':
+          return `${secretaryName} has sent you an application to be your secretary.`;
+        case 'application_accepted':
+          return `Secretary ${notif.secretary_first_name || ''} ${notif.secretary_last_name || ''} has accepted your application.`.replace(/  +/g, ' ');
         default:
           return 'You have a new notification.';
       }
@@ -90,9 +115,33 @@ const app = Vue.createApp({
         this.fetchNotifications();
       }
     },
+    async fetchConsultationCount() {
+      try {
+        const baseUrl = window.API_BASE_URL;
+        const res = await fetch(`${baseUrl}/consultations-lawyer?lawyer_id=${this.roleId}`, {
+          headers: { 'Authorization': 'Bearer ' + sessionStorage.getItem('jwt') }
+        });
+        if (res.ok) {
+          const consultations = await res.json();
+          // Count only pending, unpaid, and upcoming consultations
+          this.consultationCount = consultations.filter(c => 
+            ['Pending', 'Unpaid', 'Upcoming'].includes(c.consultation_status)
+          ).length;
+        }
+      } catch (error) {
+        console.error('Error fetching consultation count:', error);
+      }
+    },
   },
   mounted() {
+    // Check if user is authenticated
+    const token = sessionStorage.getItem('jwt');
+    if (!token) {
+      window.location.href = '/index.html';
+      return;
+    }
     this.fetchNotifications();
+    this.fetchConsultationCount();
   },
   template: `
     <div class="layout">
@@ -131,8 +180,8 @@ const app = Vue.createApp({
               <img src="/images/profile-logo.png" class="nav-logo">
             </div>
             <div v-show="showProfileMenu" class="profile-menu">
-              <a href="/html/lawyer/profile.html">Profile</a>
-              <a href="/index.html">Logout</a>
+              <a :href="attorneyCategory === 'Public' ? '/html/lawyer/profile-public.html' : '/html/lawyer/profile.html'">Profile</a>
+              <a href="#" @click="logout">Logout</a>
             </div>
           </div>
         </div>
@@ -141,7 +190,7 @@ const app = Vue.createApp({
       <!-- Side Navigation -->
       <aside class="side-nav">
         <nav>
-          <a href="/html/lawyer/search.html" class="chosen-dashboard" data-icon="search">
+          <a :href="attorneyCategory === 'Public' ? '/html/lawyer/search-public.html' : '/html/lawyer/search.html'" class="chosen-dashboard" data-icon="search">
             <div class="icon-wrapper">
               <img src="/images/search-gray.png" class="icon-img" />
               <span class="icon-label">Search</span>
@@ -156,6 +205,7 @@ const app = Vue.createApp({
           <a href="/html/lawyer/consultation.html" class="chosen-dashboard" data-icon="consultation">
             <div class="icon-wrapper">
               <img src="/images/consultation-gray.png" class="icon-img" />
+              <span v-if="consultationCount > 0" class="consultation-badge">{{ consultationCount }}</span>
               <span class="icon-label">Consultations</span>
             </div>
           </a>

@@ -3,6 +3,7 @@ import { logTrail } from '../helpers/logger/logger.js';
 import { DateTime } from 'luxon';
 import bcrypt from 'bcrypt';
 import { JWT_SECRET, jwt } from '../configs/JWT.config.js';
+import fs from 'fs';
 
 export async function loginUser(req, res) {
   const { username, password } = req.body;
@@ -129,5 +130,115 @@ export async function getAdminbyRole(req, res) {
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: 'Error fetching admins by role.' });
+  }
+};
+
+// Lawyer signup function
+export async function signupLawyer(req, res) {
+  const {
+    roll_number,
+    username,
+    first_name,
+    last_name,
+    bar_admission_year,
+    gender,
+    office_address,
+    email,
+    contact_number,
+    gcash_number,
+    attorney_category,
+    law_school,
+    password
+  } = req.body;
+
+  const attorneyLicense = req.file;
+
+  if (!attorneyLicense) {
+    return res.status(400).json({ message: 'Attorney license image is required.' });
+  }
+
+  try {
+    // Check if username exists in users table
+    const userCheck = await client.query(
+      'SELECT 1 FROM users WHERE username = $1 AND LOWER(status) = $2',
+      [username, 'Activated']
+    );
+    if (userCheck.rowCount > 0) {
+      fs.unlinkSync(attorneyLicense.path);
+      console.error('Username already exists.');
+      return res.status(400).json({ message: 'Username already exists.' });
+    }    
+
+    // Check if roll number exists in lawyers table with 'Activated' status
+    const rollCheck = await client.query(
+      'SELECT 1 FROM lawyers WHERE roll_number = $1 AND account_status = $2',
+      [roll_number, 'Activated']
+    );
+    
+    if (rollCheck.rowCount > 0) {
+      fs.unlinkSync(attorneyLicense.path);
+      return res.status(400).json({ message: 'Roll number already exists.' });
+    }
+
+    // Hash the password before storing
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const insertLawyerQuery = `
+      INSERT INTO lawyers (
+        roll_number, username, first_name, last_name,
+        bar_admission_year, gender, office_address, email,
+        contact_number, gcash_number, attorney_category,
+        attorney_license, law_school, password, account_status
+      ) VALUES (
+        $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15
+      )
+      RETURNING lawyer_id;
+    `;
+
+    const fileBuffer = fs.readFileSync(attorneyLicense.path);
+
+    const lawyerValues = [
+      roll_number,
+      username,
+      first_name,
+      last_name,
+      bar_admission_year,
+      gender,
+      office_address,
+      email,
+      contact_number,
+      gcash_number,
+      attorney_category,
+      fileBuffer,
+      law_school,
+      hashedPassword,
+      'Request' // <-- now passed as $15
+    ];
+
+    const lawyerResult = await client.query(insertLawyerQuery, lawyerValues);
+    const lawyerId = lawyerResult.rows[0].lawyer_id;
+
+    // Insert into users table
+    const insertUserQuery = `
+      INSERT INTO users (
+        role_id, role, username, password, status, failed_attempts, locked_until
+      ) VALUES ($1, 'Lawyer', $2, $3, 'Request', 0, NULL);
+    `;
+
+    await client.query(insertUserQuery, [lawyerId, username, hashedPassword]);
+
+    fs.unlinkSync(attorneyLicense.path); // Clean up
+
+    res.status(201).json({
+      message: "Registration successful. Awaiting approval.",
+      lawyerId
+    });
+
+  } catch (err) {
+    console.error('Error during lawyer signup:', err);
+    if (attorneyLicense) {
+      fs.unlinkSync(attorneyLicense.path);
+    }
+    res.status(500).json({ message: 'Server error during registration.' });
   }
 };

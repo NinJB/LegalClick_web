@@ -105,3 +105,18 @@ export async function getAllSpecializations(req, res) {
     res.status(500).json({ error: 'Internal Server Error' });
   }
 };
+
+export async function getLawyerSpecializations(req, res) {
+  const lawyerId = req.params.id;
+  try {
+    const result = await client.query(
+      'SELECT specialization_id FROM lawyer_specializations WHERE lawyer_id = $1',
+      [lawyerId]
+    );
+    const specializationIds = result.rows.map(row => row.specialization_id);
+    res.json(specializationIds);
+  } catch (err) {
+    console.error('Error fetching lawyer specializations:', err);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+}

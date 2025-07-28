@@ -55,7 +55,7 @@ html, body {
     display: block;
     width: 25em;
     margin-left: 2.5em;
-    font-size: 190%;
+    font-size: 150%;
     color: #fafafa;
 }
 
@@ -87,16 +87,16 @@ html, body {
 }
 
 .homepage__partners--img{
-    width: 10em;
-    height: 10em;
+    width: 8em;
+    height: 8em;
     padding: 2em;
     margin-top: 1em;
 }
 
 .homepage__partners--container{
     margin: auto;
-    width: 20em;
-    height: 20em;
+    width: 30%;
+    height: 18em;
     font-weight: bold;
     border: 2px solid rgb(250, 127, 26);
     border-radius: 1em;
@@ -151,7 +151,7 @@ html, body {
 .homepage__info{
     border: 2px solid rgb(250, 127, 26);
     border-radius: 1em;
-    font-size: 1em;
+    font-size: 75%;
     padding: 1em;
     margin-bottom: 1em;
     width: 100%;
@@ -167,11 +167,12 @@ html, body {
 }
 
 .map-image{
-    width: 38em;
-    height: 35em;
+    width: 100%;
+    height: 30em;
     text-align: center;
     justify-self: center;
-    margin-top: 1.5em;
+    margin-top: 1.8em;
+    border-radius: 0.5em;
 }
 
 .homepage__information--wrapper {
@@ -278,7 +279,7 @@ html, body {
 }
 
 .homepage__title--about{
-    font-size: 2.5em;
+    font-size: 2em;
     font-weight: 800;
     color:rgb(250, 127, 26);
     margin-top: 3%;
@@ -313,6 +314,7 @@ li{
     text-align: center;
     color: rgb(250, 127, 26);
     padding: 1em;
+    font-size: 150%;
 }
 
 .homepage__text:nth-of-type(2){
@@ -372,8 +374,9 @@ footer {
 
 .homepage__user--container {
     margin: auto;
-    width: 15em;
+    width: 90%;
     height: 15em;
+    padding: 1em;
     font-weight: bold;
     border: 2px solid rgb(250, 127, 26);
     border-radius: 1em;
@@ -503,36 +506,480 @@ a{
     text-decoration: none;
 }
 
-  /********************************************************************************************************************/
+/********************************************************************************************************************/
 /*****************************************MOBILE RESPONSIVE*************************************************/
 /*PHONES*/
 @media screen and (max-width: 595px){
+.homepage__welcome {
+    display: flex;
+}
+
+.homepage__first,
+.homepage__second {
+    display: block;
+    align-items: center;
+    justify-content: center;
+}
+
+.homepage__first{
+    display: block;
+    width: 25em;
+    margin: 0em;
+    font-size: 100%;
+    text-align: center;
+}
+
+.homepage__logo{
+    width: 5em;
+}
+
+.homepage__information--container h1{
+    font-size: 170%;
+}
+
+.homepage__partnership{
+    padding-top: 10%;
+    font-size: 60%;
+}
+
+.homepage__partners{
+    display: block;
+    width: 100%;
+    justify-self: center;
+    align-self: center;
+    margin: auto;
+    margin-top: 0em;
+    margin-bottom: 0em;
+}
+
+.homepage__partners--img{
+    width: 6em;
+    height: 6em;
+    padding: 0.5em;
+    margin-top: 0.5em;
+}
+
+.homepage__partners--container{
+    margin: auto;
+    width: 70%;
+    height: 30%;
+    margin-top: 1em;
+    padding: 1em;
+}
+
+.homepage__info{
+    transform: scale(0.7);
+    margin-top: -5%;
+    margin-bottom: 5%;
+    padding-left: 0em;
+    padding-right: 0em;
+}
+
+.homepage__information{
+    text-align: center;
+    display: block;
+    font-size: 70%;
+    padding-top: 17%;
+}
+
+.homepage__information--container div:nth-of-type(3){
+    margin-top: -5%;
+}
+
+.homepage__users{
+    text-align: center;
+    justify-self: center;
+}
+
+.homepage__information--container{
+    width: 100%;
+    padding-left: 0em;
+    padding-right: 0em;
+    padding-top: 11%;
+    position: relative;
+    z-index: 1;
+}
+
+.homepage__information--container:nth-of-type(2){
+    margin-top: -3%;
+}
+
+.map-image{
+    width: 95%;
+    height: 14em;
+    text-align: center;
+    justify-self: center;
+    margin-top: 0em;
+    border-radius: 0.5em;
+}
+
+/***/
+
+.homepage__users{
+    display: block;
+    gap: 0em;
+    margin-top: 0;
+}
+
+.homepage__user {
+    display: block;
+    align-items: center;
+    justify-content: center;
+    gap: 0em;
+}
+
+.homepage__user--container{
+    width: 80%;
+    height: 7em;
+    margin-left: 2em;
+    padding: 0;
+}
+
+.homepage__user--container::-webkit-scrollbar {
+    display: none;
+}
+
+.homepage__back-button {
+    transform: scale(0.8);
+    margin-left: 0;
+}
+
+.homepage__back-button:hover {
+    background-color: #fafafa;
+    color: rgb(250, 127, 26);
+}
+
+.homepage__user--logo{
+    width: 10em;
+    margin: 0;
+    margin-left: 0em;
+    margin-top: -5em;
+    margin-bottom: 0em;
+}
+
+.homepage__user--container:nth-of-type(1){
+    margin: 0, 0, 0, 0;
+}
+
+.homepage__user--container:nth-of-type(2){
+    margin: 0, 0, 0, 0;
+}
+
+.homepage__user--container:nth-of-type(3){
+    margin: 0, 0, 0, 0;
+}
+
+.homepage__user--img{
+    width: 3em;
+    height: 3em;
+}
+
+.homepage__user--wrapper{
+    font-size: 0.8em;
+}
 
 }
 
 /*******************************************************************************************************************/
 /*TABLET*/
 @media screen and (min-width: 768px) and (max-width: 768px){
- .homepage{
-        display: flex;
-        justify-content: center;  /* horizontal center */
-        align-items: center;  
-        width: 100%;
-        max-width: 100%;
-        overflow: hidden;
-  }
+.homepage__welcome {
+    display: flex;
+    font-size: 70%;
+}
 
-  home__page__title{
-    
-  }
+.homepage__first,
+.homepage__second {
+    display: block;
+    align-items: center;
+    justify-content: center;
+}
+
+.homepage__first{
+    display: block;
+    margin: 0em;
+    text-align: center;
+}
+
+.homepage__logo{
+    width: 5em;
+}
+
+.homepage__partnership{
+    padding-top: 5em;
+    font-size: 50%;
+}
+
+.homepage__partners{
+    display: flex;
+    width: 100%;
+    justify-self: center;
+    align-self: center;
+    margin: auto;
+    margin-top: 0em;
+    margin-bottom: 0em;
+}
+
+.homepage__partners--img{
+    width: 15em;
+    height: 15em;
+    padding: 0.5em;
+    margin-top: 0.5em;
+}
+
+.homepage__partners--container{
+    margin: auto;
+    width: 70%;
+    height: 20em;
+    margin: 1em;
+    padding: 1em;
+}
+
+.homepage__info{
+    display: block;
+    transform: scale(0.9);
+    width: 90%;
+    justify-self: center;
+}
+
+.homepage__information{
+    text-align: center;
+    display: flex;
+    font-size: 70%;
+}
+
+.homepage__information--container div:nth-of-type(3){
+    margin-top: 0;
+}
+
+.homepage__users{
+    text-align: center;
+    justify-self: center;
+}
+
+.homepage__information--container{
+    width: 100%;
+    padding-left: 0em;
+    padding-right: 0em;
+    padding-top: 7%;
+    position: relative;
+    z-index: 1;
+}
+
+.homepage__information--container:nth-of-type(2){
+    margin-top: 0;
+}
+
+.map-image{
+    width: 95%;
+    height: 29em;
+    text-align: center;
+    justify-self: center;
+    margin-top: 0em;
+    border-radius: 0.5em;
+}
+
+.homepage__user--container{
+    width: 90%;
+    height: 12em;
+    margin-left: 2em;
+    padding: 0;
+}
+
+.homepage__user--container::-webkit-scrollbar {
+    display: none;
+}
+
+.homepage__back-button {
+    transform: scale(0.8);
+    margin-left: 0;
+}
+
+.homepage__back-button:hover {
+    background-color: #fafafa;
+    color: rgb(250, 127, 26);
+}
+
+.homepage__user--logo{
+    width: 10em;
+    margin: 0;
+    margin-left: 0em;
+    margin-top: -5em;
+    margin-bottom: 0em;
+}
+
+.homepage__user--container:nth-of-type(1){
+    margin: 0, 0, 0, 0;
+}
+
+.homepage__user--container:nth-of-type(2){
+    margin: 0, 0, 0, 0;
+}
+
+.homepage__user--container:nth-of-type(3){
+    margin: 0, 0, 0, 0;
+}
+
+.homepage__user--img{
+    width: 7em;
+    height: 7em;
+}
+
+.homepage__user--wrapper{
+    font-size: 0.8em;
+}
+
 }
 
 /*******************************************************************************************************************/
 /*SCREEN LAPTOPS // DESKTOPS*/
 @media screen and (min-width: 2560px) and (max-width: 2560px){
-  .login-container{
-    transform: scale(1.5);
-  }
+.homepage__welcome {
+    display: flex;
+    font-size: 200%;
+}
+
+.homepage__first,
+.homepage__second {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.homepage__first{
+    display: block;
+    margin: 0em;
+    text-align: center;
+}
+
+.homepage__logo{
+    width: 10em;
+}
+
+.homepage__partnership{
+    padding-top: 5em;
+    font-size: 150%;
+}
+
+.homepage__partners{
+    display: flex;
+    width: 100%;
+    justify-self: center;
+    align-self: center;
+    margin: auto;
+    margin-top: 0em;
+    margin-bottom: 0em;
+}
+
+.homepage__partners--img{
+    width: 15em;
+    height: 15em;
+    padding: 0.5em;
+    margin-top: 0.5em;
+}
+
+.homepage__partners--container{
+    margin: auto;
+    width: 70%;
+    height: 20em;
+    margin: 1em;
+    padding: 1em;
+}
+
+.homepage__info{
+    display: block;
+    transform: scale(0.9);
+    width: 90%;
+    justify-self: center;
+}
+
+.homepage__information{
+    text-align: center;
+    display: flex;
+    font-size: 200%;
+}
+
+.homepage__information--container div:nth-of-type(3){
+    margin-top: 0;
+}
+
+.homepage__users{
+    text-align: center;
+    justify-self: center;
+}
+
+.homepage__information--container{
+    width: 100%;
+    padding-left: 0em;
+    padding-right: 0em;
+    padding-top: 5%;
+    position: relative;
+    z-index: 1;
+}
+
+.homepage__information--container:nth-of-type(2){
+    margin-top: 0;
+}
+
+.map-image{
+    width: 95%;
+    height: 29em;
+    text-align: center;
+    justify-self: center;
+    margin-top: 0em;
+    border-radius: 0.5em;
+}
+
+.homepage__user--container{
+    transform: scale(2);
+    font-size: 2em;
+    padding: 0;
+}
+
+.homepage__user--container::-webkit-scrollbar {
+    display: none;
+}
+
+.homepage__back-button {
+    transform: scale(2);
+    margin-left: 3em;
+}
+
+.homepage__back-button:hover {
+    background-color: #fafafa;
+    color: rgb(250, 127, 26);
+}
+
+.homepage__user--logo{
+    width: 30em;
+    margin: 0;
+    margin-left: 0em;
+    margin-top: -5em;
+    margin-bottom: 0em;
+}
+
+.homepage__user--container:nth-of-type(1){
+    margin: 0, 0, 0, 0;
+    margin-right: 10em;
+}
+
+.homepage__user--container:nth-of-type(2){
+    margin: 0, 0, 0, 0;
+}
+
+.homepage__user--container:nth-of-type(3){
+    margin: 0, 0, 0, 0;
+}
+
+.homepage__user--img{
+    width: 10em;
+    height: 10em;
+}
+
+.homepage__user--wrapper{
+    font-size: 0.8em;
+}
+
 }
 
 /*******************************************************************************************************************/

@@ -16,6 +16,9 @@ const consultation = Vue.createApp({
       showReviewModal: false,
       reviewToShow: null,
       editMode: false,
+      showPaymentReceipt: false,
+      paymentReceiptUrl: null,
+      completedClientFilter: 'all', // 'all' or client_id
     };
   },
   async mounted() {
@@ -34,7 +37,7 @@ const consultation = Vue.createApp({
     this.loading = true;
     try {
       const baseUrl = window.API_BASE_URL;
-      const res = await fetch(`${baseUrl}/consultations?lawyer_id=${this.lawyerId}`, {
+      const res = await fetch(`${baseUrl}/consultations-lawyer?lawyer_id=${this.lawyerId}`, {
         headers: { 'Authorization': 'Bearer ' + sessionStorage.getItem('jwt') }
       });
       if (!res.ok) throw new Error('Failed to load consultations');
@@ -51,6 +54,17 @@ const consultation = Vue.createApp({
             c._hasReview = data.exists;
           } catch {
             c._hasReview = false; // Network or other error, treat as no review
+          }
+        }
+        // Check for payment receipt for unpaid consultations
+        if (c.consultation_status === 'Unpaid') {
+          try {
+            const res = await fetch(`${baseUrl}/payments/receipt/${c.consultation_id || c.id}`, {
+              headers: { 'Authorization': 'Bearer ' + sessionStorage.getItem('jwt') }
+            });
+            c._hasReceipt = res.ok;
+          } catch {
+            c._hasReceipt = false;
           }
         }
       }));
@@ -73,10 +87,35 @@ const consultation = Vue.createApp({
   },
   computed: {
     filteredConsultations() {
-      // Sort by consultation_date ascending (soonest first)
-      return this.consultations
-        .filter(c => c.consultation_status === this.selectedStatus)
-        .sort((a, b) => new Date(a.consultation_date) - new Date(b.consultation_date));
+      let filtered = this.consultations.filter(c => c.consultation_status === this.selectedStatus);
+      if (this.selectedStatus === 'Completed' && this.completedClientFilter !== 'all') {
+        filtered = filtered.filter(c => c.client_id == this.completedClientFilter);
+      }
+      if (this.selectedStatus === 'Completed') {
+        // Sort by consultation_date descending (most recent first)
+        return filtered.sort((a, b) => new Date(b.consultation_date) - new Date(a.consultation_date));
+      } else {
+        // Sort by consultation_date ascending (soonest first)
+        return filtered.sort((a, b) => new Date(a.consultation_date) - new Date(b.consultation_date));
+      }
+    },
+    statusCounts() {
+      const counts = {};
+      const statuses = ['Pending', 'Unpaid', 'Upcoming', 'Rejected'];
+      statuses.forEach(status => {
+        counts[status] = this.consultations.filter(c => c.consultation_status === status).length;
+      });
+      return counts;
+    },
+    completedClients() {
+      // Only for completed consultations, get unique client_ids
+      const completed = this.consultations.filter(c => c.consultation_status === 'Completed');
+      const uniqueIds = [...new Set(completed.map(c => c.client_id))];
+      // Return array of { id, name }
+      return uniqueIds.map(id => ({
+        id,
+        name: this.clientsMap[id] ? `${this.clientsMap[id].first_name} ${this.clientsMap[id].last_name}` : `Client #${id}`
+      }));
     }
   },
   methods: {
@@ -186,6 +225,10 @@ const consultation = Vue.createApp({
     },
     async openPopup(consult) {
       this.selectedConsultation = consult;
+      // Check if there's a payment receipt for unpaid consultations
+      if (consult.consultation_status === 'Unpaid') {
+        consult._hasReceipt = await this.checkPaymentReceipt(consult);
+      }
       if (consult.consultation_status === 'Completed') {
         await this.fetchLawyerNote(consult.id);
       } else {
@@ -249,6 +292,106 @@ const consultation = Vue.createApp({
     closeReviewModal() {
       this.showReviewModal = false;
       this.reviewToShow = null;
+    },
+    async viewPaymentReceipt(consultation) {
+      try {
+        const baseUrl = window.API_BASE_URL;
+        const res = await fetch(`${baseUrl}/payments/receipt/${consultation.consultation_id || consultation.id}`, {
+          headers: { 'Authorization': 'Bearer ' + sessionStorage.getItem('jwt') }
+        });
+        if (res.ok) {
+          const data = await res.json();
+          // Fetch the image as a blob with JWT token
+          const imageRes = await fetch(`${baseUrl}/payments/proof/${data.payment_id}`, {
+            headers: { 'Authorization': 'Bearer ' + sessionStorage.getItem('jwt') }
+          });
+          if (imageRes.ok) {
+            const blob = await imageRes.blob();
+            this.paymentReceiptUrl = URL.createObjectURL(blob);
+            this.showPaymentReceipt = true;
+          } else {
+            alert('Error loading payment receipt image.');
+          }
+        } else {
+          alert('No payment receipt found for this consultation.');
+        }
+      } catch (error) {
+        console.error('Error fetching payment receipt:', error);
+        alert('Error loading payment receipt.');
+      }
+    },
+    closePaymentReceipt() {
+      this.showPaymentReceipt = false;
+      if (this.paymentReceiptUrl && this.paymentReceiptUrl.startsWith('blob:')) {
+        URL.revokeObjectURL(this.paymentReceiptUrl);
+      }
+      this.paymentReceiptUrl = null;
+    },
+    async confirmPayment(consultation) {
+      try {
+        const baseUrl = window.API_BASE_URL;
+        const res = await fetch(`${baseUrl}/payments/confirm`, {
+          method: 'POST',
+          headers: { 
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + sessionStorage.getItem('jwt')
+          },
+          body: JSON.stringify({
+            consultation_id: consultation.consultation_id || consultation.id,
+            client_id: consultation.client_id,
+            lawyer_id: this.lawyerId
+          })
+        });
+        if (res.ok) {
+          consultation.consultation_status = 'Upcoming';
+          this.closePaymentReceipt();
+          this.closePopup();
+          alert('Payment confirmed successfully.');
+        } else {
+          alert('Error confirming payment.');
+        }
+      } catch (error) {
+        console.error('Error confirming payment:', error);
+        alert('Error confirming payment.');
+      }
+    },
+    async denyPayment(consultation) {
+      try {
+        const baseUrl = window.API_BASE_URL;
+        const res = await fetch(`${baseUrl}/payments/deny`, {
+          method: 'POST',
+          headers: { 
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + sessionStorage.getItem('jwt')
+          },
+          body: JSON.stringify({
+            consultation_id: consultation.consultation_id || consultation.id,
+            client_id: consultation.client_id,
+            lawyer_id: this.lawyerId
+          })
+        });
+        if (res.ok) {
+          this.closePaymentReceipt();
+          this.closePopup();
+          alert('Payment receipt denied. Client will be notified to submit a new receipt.');
+        } else {
+          alert('Error denying payment.');
+        }
+      } catch (error) {
+        console.error('Error denying payment:', error);
+        alert('Error denying payment.');
+      }
+    },
+    async checkPaymentReceipt(consultation) {
+      try {
+        const baseUrl = window.API_BASE_URL;
+        const res = await fetch(`${baseUrl}/payments/receipt/${consultation.consultation_id || consultation.id}`, {
+          headers: { 'Authorization': 'Bearer ' + sessionStorage.getItem('jwt') }
+        });
+        return res.ok; // Returns true if receipt exists, false if not found
+      } catch {
+        return false;
+      }
     }
   },
   template: `
@@ -263,8 +406,17 @@ const consultation = Vue.createApp({
         @click="setStatus(status)"
       >
         {{ status }}
+        <span v-if="['Pending', 'Unpaid', 'Upcoming'].includes(status) && statusCounts[status] > 0" class="status-count">{{ statusCounts[status] }}</span>
       </button>
     </nav>
+    <!-- Completed Clients Dropdown -->
+    <div v-if="selectedStatus === 'Completed' && completedClients.length > 0" style="margin: 16px 0;">
+      <label for="completed-client-filter" style="font-weight: bold; margin-right: 8px;">Filter by Client:</label>
+      <select id="completed-client-filter" v-model="completedClientFilter">
+        <option value="all">All</option>
+        <option v-for="client in completedClients" :key="client.id" :value="client.id">{{ client.name }}</option>
+      </select>
+    </div>
 
     <!-- Loading / Error / Empty -->
     <div v-if="loading" class="loading">Loading consultations...</div>
@@ -298,7 +450,7 @@ const consultation = Vue.createApp({
           <span
             :class="['consultation__status-label', statusColor(consult.consultation_status)]"
           >
-            {{ consult.consultation_status }}
+            {{ consult.consultation_status === 'Unpaid' && consult._hasReceipt ? 'Payment Receipt Attached' : consult.consultation_status }}
           </span>
         </p>
         <button v-if="consult.consultation_status === 'Completed' && consult._hasReview" @click.stop="fetchReviewForConsultation(consult.consultation_id || consult.id, consult.client_id)" class="review-btn">View Rating</button>
@@ -327,7 +479,7 @@ const consultation = Vue.createApp({
           <div><span class="detail-label">Fee:</span> <span class="detail-value">₱{{ selectedConsultation.consultation_fee }}</span></div>
           <div><span class="detail-label">Mode:</span> <span class="detail-value">{{ selectedConsultation.consultation_mode }}</span></div>
           <div><span class="detail-label">Payment:</span> <span class="detail-value">{{ selectedConsultation.payment_mode }}</span></div>
-          <div><span class="detail-label">Status:</span> <span class="detail-value">{{ selectedConsultation.consultation_status }}</span></div>
+          <div><span class="detail-label">Status:</span> <span class="detail-value">{{ selectedConsultation.consultation_status === 'Unpaid' && selectedConsultation._hasReceipt ? 'Payment Receipt Attached' : selectedConsultation.consultation_status }}</span></div>
         </div>
         <div v-if="selectedConsultation.consultation_status === 'Pending'" style="margin-top:15px;">
           <button class="accept-btn" @click="acceptConsultation(selectedConsultation)">Accept</button>
@@ -335,6 +487,9 @@ const consultation = Vue.createApp({
         </div>
         <div v-if="selectedConsultation.consultation_status === 'Upcoming'" style="margin-top:15px;">
           <button class="add-note-btn review-modal-submit" @click="openNotePopup(selectedConsultation)">Add Notes & Recommendation</button>
+        </div>
+        <div v-if="selectedConsultation.consultation_status === 'Unpaid'" style="margin-top:15px;">
+          <button class="add-note-btn review-modal-submit" @click="viewPaymentReceipt(selectedConsultation)">View Payment Receipt</button>
         </div>
         <div v-else-if="selectedConsultation.consultation_status === 'Completed' && lawyerNote && (lawyerNote.note || lawyerNote.recommendation)" style="margin-top:15px;">
           <button class="add-note-btn review-modal-submit" @click="openNotePopup(selectedConsultation)">View Notes & Recommendation</button>
@@ -392,6 +547,23 @@ const consultation = Vue.createApp({
         </div>
         <label>Description:</label>
         <div class="review-description">{{ reviewToShow.review_description }}</div>
+      </div>
+    </div>
+
+    <!-- Payment Receipt Modal -->
+    <div v-if="showPaymentReceipt" class="modal-overlay" @click.self="closePaymentReceipt">
+      <div class="modal-content">
+        <button class="modal-close" @click="closePaymentReceipt">&times;</button>
+        <div class="modal-section">
+          <div class="modal-section-title">Payment Receipt</div>
+          <div style="text-align: center; margin: 20px 0;">
+            <img v-if="paymentReceiptUrl" :src="paymentReceiptUrl" alt="Payment Receipt" style="max-width: 100%; max-height: 400px; border: 1px solid #ddd; border-radius: 8px;" />
+          </div>
+          <div style="margin-top: 20px; text-align: center;">
+            <button class="accept-btn" @click="confirmPayment(selectedConsultation)" style="margin-right: 10px;">Confirm Payment</button>
+            <button class="reject-btn" @click="denyPayment(selectedConsultation)">Deny Payment</button>
+          </div>
+        </div>
       </div>
     </div>
 

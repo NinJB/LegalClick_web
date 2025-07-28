@@ -97,6 +97,7 @@ const profile = Vue.createApp({
         formData.append('file', this.profilePictureFile);
         const uploadResponse = await fetch(`${baseUrl}/lawyer/upload-profile-picture/${this.lawyer.lawyer_id}`, {
           method: 'POST',
+          headers: { 'Authorization': 'Bearer ' + sessionStorage.getItem('jwt') },
           body: formData
         });
 
@@ -150,6 +151,7 @@ const profile = Vue.createApp({
 
         const response = await fetch(`${baseUrl}/lawyer/upload-profile-picture/${this.lawyer.lawyer_id}`, {
           method: 'POST',
+          headers: { 'Authorization': 'Bearer ' + sessionStorage.getItem('jwt') },
           body: formData
         });
 

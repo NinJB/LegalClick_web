@@ -99,7 +99,7 @@ const calendarApp = Vue.createApp({
             if (!clientId) return;
             try {
                 const baseUrl = window.API_BASE_URL;
-                const res = await fetch(`${baseUrl}/consultations?client_id=${clientId}`, { headers: { 'Authorization': 'Bearer ' + sessionStorage.getItem('jwt') } });
+                const res = await fetch(`${baseUrl}/consultations-client?client_id=${clientId}`, { headers: { 'Authorization': 'Bearer ' + sessionStorage.getItem('jwt') } });
                 if (!res.ok) throw new Error('Failed to load consultations');
                 const consultations = await res.json();
                 const upcoming = consultations.filter(c => c.consultation_status === 'Upcoming');

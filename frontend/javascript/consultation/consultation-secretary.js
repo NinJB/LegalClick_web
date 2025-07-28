@@ -63,7 +63,7 @@ const consultation = Vue.createApp({
       this.error = null;
       try {
         const baseUrl = window.API_BASE_URL;
-        const res = await fetch(`${baseUrl}/consultations?lawyer_id=${this.selectedLawyerId}`, {
+        const res = await fetch(`${baseUrl}/consultations-lawyer?lawyer_id=${this.selectedLawyerId}`, {
           headers: { 'Authorization': 'Bearer ' + sessionStorage.getItem('jwt') }
         });
         if (!res.ok) throw new Error('Failed to load consultations');
@@ -152,10 +152,22 @@ const consultation = Vue.createApp({
   },
   computed: {
     filteredConsultations() {
-      // Sort by consultation_date ascending (soonest first)
-      return this.consultations
-        .filter(c => c.consultation_status === this.selectedStatus)
-        .sort((a, b) => new Date(a.consultation_date) - new Date(b.consultation_date));
+      let filtered = this.consultations.filter(c => c.consultation_status === this.selectedStatus);
+      if (this.selectedStatus === 'Completed') {
+        // Sort by consultation_date descending (most recent first)
+        return filtered.sort((a, b) => new Date(b.consultation_date) - new Date(a.consultation_date));
+      } else {
+        // Sort by consultation_date ascending (soonest first)
+        return filtered.sort((a, b) => new Date(a.consultation_date) - new Date(b.consultation_date));
+      }
+    },
+    statusCounts() {
+      const counts = {};
+      const statuses = ['Pending', 'Unpaid', 'Upcoming', 'Rejected'];
+      statuses.forEach(status => {
+        counts[status] = this.consultations.filter(c => c.consultation_status === status).length;
+      });
+      return counts;
     }
   },
   template: `
@@ -171,9 +183,18 @@ const consultation = Vue.createApp({
       </div>
 
       <div class="consultation__status" style="margin-top:10px;">
-        <button class="consultation__button" :class="{ active: selectedStatus === 'Pending' }" @click="setStatus('Pending')">Pending</button>
-        <button class="consultation__button" :class="{ active: selectedStatus === 'Unpaid' }" @click="setStatus('Unpaid')">Unpaid</button>
-        <button class="consultation__button" :class="{ active: selectedStatus === 'Upcoming' }" @click="setStatus('Upcoming')">Upcoming</button>
+        <button class="consultation__button" :class="{ active: selectedStatus === 'Pending' }" @click="setStatus('Pending')">
+          Pending
+          <span v-if="statusCounts.Pending > 0" class="status-count">{{ statusCounts.Pending }}</span>
+        </button>
+        <button class="consultation__button" :class="{ active: selectedStatus === 'Unpaid' }" @click="setStatus('Unpaid')">
+          Unpaid
+          <span v-if="statusCounts.Unpaid > 0" class="status-count">{{ statusCounts.Unpaid }}</span>
+        </button>
+        <button class="consultation__button" :class="{ active: selectedStatus === 'Upcoming' }" @click="setStatus('Upcoming')">
+          Upcoming
+          <span v-if="statusCounts.Upcoming > 0" class="status-count">{{ statusCounts.Upcoming }}</span>
+        </button>
         <button class="consultation__button" :class="{ active: selectedStatus === 'Rejected' }" @click="setStatus('Rejected')">Rejected</button>
         <button class="consultation__button" :class="{ active: selectedStatus === 'Completed' }" @click="setStatus('Completed')">Completed</button>
       </div>

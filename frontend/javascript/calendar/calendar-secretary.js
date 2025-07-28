@@ -147,7 +147,7 @@ const calendarSecretaryApp = Vue.createApp({
             this.error = null;
             try {
                 const baseUrl = window.API_BASE_URL;
-                const res = await fetch(`${baseUrl}/consultations?lawyer_id=${this.selectedLawyerId}`, { headers: { 'Authorization': 'Bearer ' + sessionStorage.getItem('jwt') } });
+                const res = await fetch(`${baseUrl}/consultations-lawyer?lawyer_id=${this.selectedLawyerId}`, { headers: { 'Authorization': 'Bearer ' + sessionStorage.getItem('jwt') } });
                 if (!res.ok) throw new Error('Failed to load consultations');
                 const consultations = await res.json();
                 const upcoming = consultations.filter(c => c.consultation_status === 'Upcoming');

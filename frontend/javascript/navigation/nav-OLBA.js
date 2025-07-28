@@ -19,6 +19,25 @@ const app = Vue.createApp({
   methods: {
     toggleProfileMenu(state) {
       this.showProfileMenu = state;
+    },
+    logout() {
+      // Clear all session data
+      sessionStorage.clear();
+      localStorage.clear();
+      // Clear browser history and redirect to login page
+      window.location.replace('/index.html');
+      // Clear all history entries
+      window.history.pushState(null, '', '/index.html');
+      window.history.pushState(null, '', '/index.html');
+      window.history.pushState(null, '', '/index.html');
+    }
+  },
+  mounted() {
+    // Check if user is authenticated
+    const token = sessionStorage.getItem('jwt');
+    if (!token) {
+      window.location.href = '/index.html';
+      return;
     }
   },
   template: `
@@ -33,7 +52,7 @@ const app = Vue.createApp({
             <div class="profile-icon"><img src="/images/profile-logo.png" class="nav-logo"></div>
             <div v-show="showProfileMenu" class="profile-menu">
               <a href="/html/admins/profile.html">Profile</a>
-              <a href="/index.html">Logout</a>
+              <a href="#" @click="logout">Logout</a>
             </div>
           </div>
         </div>

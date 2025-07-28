@@ -42,31 +42,41 @@ const search = Vue.createApp({
           matchesCategory = lawyer.attorney_category === this.selectedCategory;
         }
 
+        // Handle service and budget filtering
         if (this.selectedService !== 'Select' && this.selectedBudget !== 'Select') {
-          const budgetRanges = {
-            'Free': [0, 0],
-            'P500 below': [100, 499],
-            'P500 - P999': [500, 999],
-            'P1000 - P4999': [1000, 4999],
-            'P5000 - P9999': [5000, 9999],
-            'P10000 - P30000': [10000, 30000],
-            'P30000 above': [30001, Infinity]
-          };
+          // If Free budget is selected, only show public attorneys
+          if (this.selectedBudget === 'Free') {
+            matchesServiceAndBudget = lawyer.attorney_category === 'Public';
+          } else {
+            // For other budgets, apply normal filtering
+            const budgetRanges = {
+              'P500 below': [100, 499],
+              'P500 - P999': [500, 999],
+              'P1000 - P4999': [1000, 4999],
+              'P5000 - P9999': [5000, 9999],
+              'P10000 - P30000': [10000, 30000],
+              'P30000 above': [30001, Infinity]
+            };
 
-          const [minBudget, maxBudget] = budgetRanges[this.selectedBudget];
+            const [minBudget, maxBudget] = budgetRanges[this.selectedBudget];
 
-          if (this.selectedService === 'Consultation') {
-            matchesServiceAndBudget = lawyer.consultation != null &&
-              lawyer.consultation >= minBudget &&
-              lawyer.consultation <= maxBudget;
-          } else if (this.selectedService === 'Representation') {
-            matchesServiceAndBudget = lawyer.representation_min != null &&
-              lawyer.representation_max != null &&
-              lawyer.representation_min <= maxBudget &&
-              lawyer.representation_max >= minBudget;
+            if (this.selectedService === 'Consultation') {
+              matchesServiceAndBudget = lawyer.consultation != null &&
+                lawyer.consultation >= minBudget &&
+                lawyer.consultation <= maxBudget;
+            } else if (this.selectedService === 'Representation') {
+              matchesServiceAndBudget = lawyer.representation_min != null &&
+                lawyer.representation_max != null &&
+                lawyer.representation_min <= maxBudget &&
+                lawyer.representation_max >= minBudget;
+            }
           }
         }
 
+        // Public attorneys always match specialization (they can handle all specializations)
+        if (lawyer.attorney_category === 'Public') {
+          return matchesSearch && matchesCategory && matchesServiceAndBudget;
+        }
         return matchesSearch && matchesCategory && matchesServiceAndBudget;
       });
     },
@@ -172,9 +182,14 @@ const search = Vue.createApp({
       }
 
       const lawyerId = this.selectedLawyer.lawyer_id;
-      // Use only lawyerId, not clientId in URL
-      const bookingUrl = `/html/client/form.html?lawyer_id=${lawyerId}`;
-      window.location.href = bookingUrl;
+      // If public attorney, go to free consultation form
+      if (this.selectedLawyer.attorney_category === 'Public') {
+        sessionStorage.setItem('selectedLawyerId', lawyerId);
+        window.location.href = `/html/client/form.html?free=1`;
+        return;
+      }
+      sessionStorage.setItem('selectedLawyerId', lawyerId);
+      window.location.href = `/html/client/form.html`;
     },
     fetchLawyerServicesList() {
       const baseUrl = window.API_BASE_URL;
@@ -207,8 +222,12 @@ const search = Vue.createApp({
       this.closePopup();
     },
     confirmAddAttorney() {
-      if (!this.selectedLawyer || !this.loggedInRoleId) {
-        this.requestMessage = 'Error: Missing required information';
+      if (!this.loggedInRoleId) {
+        this.requestMessage = 'Error: Missing secretary ID (not logged in).';
+        return;
+      }
+      if (!this.selectedLawyer || !this.selectedLawyer.lawyer_id) {
+        this.requestMessage = 'Error: Please select a valid lawyer.';
         return;
       }
 
@@ -245,6 +264,32 @@ const search = Vue.createApp({
         this.requestMessage = 'Error sending request: ' + error.message;
         console.error('Error:', error);
       });
+    },
+    fetchLawyerReviews(lawyer_id) {
+      this.reviewsLoading = true;
+      const baseUrl = window.API_BASE_URL;
+      fetch(`${baseUrl}/lawyer/${lawyer_id}/reviews`, { headers: { 'Authorization': 'Bearer ' + sessionStorage.getItem('jwt') } })
+        .then(res => res.json())
+        .then(data => {
+          this.reviews = data.reviews || [];
+          this.averageRating = data.average_rating;
+        })
+        .catch(err => {
+          console.error('Error fetching reviews:', err);
+          this.reviews = [];
+          this.averageRating = null;
+        })
+        .finally(() => {
+          this.reviewsLoading = false;
+        });
+    },
+    formatTime(time) {
+      if (!time) return 'N/A';
+      const [hours, minutes] = time.split(':');
+      const hour = parseInt(hours);
+      const ampm = hour >= 12 ? 'PM' : 'AM';
+      const displayHour = hour === 0 ? 12 : hour > 12 ? hour - 12 : hour;
+      return `${displayHour}:${minutes} ${ampm}`;
     }
   },
   watch: {
@@ -352,12 +397,18 @@ const search = Vue.createApp({
         <div class="popup-column">
           <h4 class="office-hours__part">Office Hours</h4>
           <p><strong>{{ lawyerAvailability?.workday_start || 'N/A' }} to {{ lawyerAvailability?.workday_end || 'N/A' }}</strong></p>
-          <p><strong>Morning (AM):</strong> {{ lawyerAvailability?.morning_start || 'N/A' }} - {{ lawyerAvailability?.morning_end || 'N/A' }}</p>
-          <p><strong>Afternoon (PM):</strong> {{ lawyerAvailability?.evening_start || 'N/A' }} - {{ lawyerAvailability?.evening_end || 'N/A' }}</p>
+          <p><strong>Morning:</strong> {{ formatTime(lawyerAvailability?.morning_start) }} - {{ formatTime(lawyerAvailability?.morning_end) }}</p>
+          <p><strong>Afternoon:</strong> {{ formatTime(lawyerAvailability?.evening_start) }} - {{ formatTime(lawyerAvailability?.evening_end) }}</p>
 
           <h4 class="services__part">Services</h4>
-          <p><strong>Consultation:</strong> ₱{{ lawyerServices?.consultation ?? 'N/A' }} per hour</p>
-          <p><strong>Representation:</strong> ₱{{ lawyerServices?.representation_min ?? 'N/A' }} - ₱{{ lawyerServices?.representation_max ?? 'N/A' }}</p>
+          <template v-if="selectedLawyer.attorney_category === 'Public'">
+            <p><strong>Consultation:</strong> Free</p>
+            <p><strong>Representation:</strong> Free</p>
+          </template>
+          <template v-else>
+            <p><strong>Consultation:</strong> ₱{{ lawyerServices?.consultation ?? 'N/A' }} per hour</p>
+            <p><strong>Representation:</strong> ₱{{ lawyerServices?.representation_min ?? 'N/A' }} - ₱{{ lawyerServices?.representation_max ?? 'N/A' }}</p>
+          </template>
         
         <div class="tooltip-container secretary">
             <button class="secretary_add"

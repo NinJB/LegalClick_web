@@ -129,9 +129,9 @@ export async function createRequestBySecretaryId(req, res) {
 
     // Add notification for lawyer
     await client.query(
-      `INSERT INTO notifications (notification_status, sender, receiver, date, time, notification_purpose)
-       VALUES ($1, $2, $3, CURRENT_DATE, CURRENT_TIME, $4)`,
-      ['unread', secretary_id, lawyer_id, 'application']
+      `INSERT INTO notifications (notification_status, sender, receiver, date, time, notification_purpose, consultation_id)
+       VALUES ($1, $2, $3, CURRENT_DATE, CURRENT_TIME, $4, $5)`,
+      ['unread', secretary_id, lawyer_id, 'application', 0]
     );
 
     res.status(201).json({
@@ -311,9 +311,9 @@ export async function updateRequestStatus(req, res) {
       const { secretary_id, lawyer_id } = rel.rows[0];
       let purpose = status === 'Approved' ? 'approved' : 'rejected';
       await client.query(
-        `INSERT INTO notifications (notification_status, sender, receiver, date, time, notification_purpose)
-         VALUES ($1, $2, $3, CURRENT_DATE, CURRENT_TIME, $4)`,
-        ['unread', lawyer_id, secretary_id, purpose]
+        `INSERT INTO notifications (notification_status, sender, receiver, date, time, notification_purpose, consultation_id)
+         VALUES ($1, $2, $3, CURRENT_DATE, CURRENT_TIME, $4, $5)`,
+        ['unread', lawyer_id, secretary_id, purpose, 0]
       );
     }
     res.sendStatus(200);

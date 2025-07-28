@@ -146,16 +146,21 @@ createApp({
     },
     async fetchExistingSelections() {
       const baseUrl = window.API_BASE_URL;
-      const [specsRes, availabilityRes] = await Promise.all([
-        fetch(`${baseUrl}/lawyer/${this.roleId}/specializations`, { headers: { 'Authorization': 'Bearer ' + sessionStorage.getItem('jwt') } }),
-        fetch(`${baseUrl}/lawyer/${this.roleId}/availability`, { headers: { 'Authorization': 'Bearer ' + sessionStorage.getItem('jwt') } })
-      ]);
-      const specs = await specsRes.json();
-      this.selectedSpecializations = specs.map(Number);
+      const res = await fetch(`${baseUrl}/lawyer/${this.roleId}/setup`, {
+        headers: { 'Authorization': 'Bearer ' + sessionStorage.getItem('jwt') }
+      });
+      if (!res.ok) {
+        alert('Failed to load setup data.');
+        return;
+      }
+      const data = await res.json();
+      this.selectedSpecializations = (data.specializations || []).map(Number);
       this.originalSpecializations = [...this.selectedSpecializations];
-      const availability = await availabilityRes.json();
-      if (availability) {
-        this.officeHours = availability;
+      if (data.availability) {
+        this.officeHours = data.availability;
+      }
+      if (data.services) {
+        this.services = data.services;
       }
     },
     async fetchServices() {

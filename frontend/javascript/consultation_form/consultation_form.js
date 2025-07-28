@@ -1,4 +1,20 @@
-const ConsultationForm = {
+// Check if this is a free consultation
+const urlParams = new URLSearchParams(window.location.search);
+const isFree = urlParams.get('free') === '1';
+
+// Get lawyer_id from sessionStorage (set by search page)
+const lawyerId = sessionStorage.getItem('selectedLawyerId');
+
+if (isFree) {
+  // Load the free consultation form instead
+  const script = document.createElement('script');
+  script.src = '/javascript/consultation_form/free_ consultation.js';
+  document.head.appendChild(script);
+  // Remove lawyerId from sessionStorage for security
+  sessionStorage.removeItem('selectedLawyerId');
+} else {
+  // Load the regular consultation form
+  const ConsultationForm = {
   template: `
     <div class="slip-container" v-if="lawyer && client">
       <h2>Consultation Form</h2>
@@ -94,12 +110,18 @@ const ConsultationForm = {
     };
   },
   async mounted() {
-    // Fetch specializations first
+    // Fetch all specializations and the lawyer's specializations
     try {
       const baseUrl = window.API_BASE_URL;
-      const specRes = await fetch(`${baseUrl}/specializations`, { headers: { 'Authorization': 'Bearer ' + sessionStorage.getItem('jwt') } });
-      if (!specRes.ok) throw new Error('Failed to load specializations');
-      this.specializations = await specRes.json();
+      const [specRes, lawyerSpecRes] = await Promise.all([
+        fetch(`${baseUrl}/specializations`, { headers: { 'Authorization': 'Bearer ' + sessionStorage.getItem('jwt') } }),
+        fetch(`${baseUrl}/lawyer/${lawyerId}/specializations`, { headers: { 'Authorization': 'Bearer ' + sessionStorage.getItem('jwt') } })
+      ]);
+      if (!specRes.ok || !lawyerSpecRes.ok) throw new Error('Failed to load specializations');
+      const allSpecs = await specRes.json();
+      const lawyerSpecIds = await lawyerSpecRes.json();
+      // Only show specializations the lawyer has
+      this.specializations = allSpecs.filter(spec => lawyerSpecIds.includes(spec.specialization_id));
     } catch (e) {
       console.error(e);
       alert('Failed to load consultation categories.');
@@ -111,14 +133,14 @@ const ConsultationForm = {
       const payload = window.decodeJWT ? window.decodeJWT(token) : JSON.parse(atob(token.split('.')[1]));
       clientId = payload && payload.role_id;
     }
-    const urlParams = new URLSearchParams(window.location.search);
-    const lawyerId = urlParams.get('lawyer_id');
     if (!lawyerId || !clientId) {
       alert('Missing lawyer or client ID.');
       return;
     }
     this.form.lawyer_id = lawyerId;
     this.form.client_id = clientId;
+    // Remove lawyerId from sessionStorage for security
+    sessionStorage.removeItem('selectedLawyerId');
     try {
       const baseUrl = window.API_BASE_URL;
       const [lawyerRes, clientRes, availabilityRes, servicesRes] = await Promise.all([
@@ -199,4 +221,7 @@ const ConsultationForm = {
   }
 };
 
-Vue.createApp(ConsultationForm).mount(".form");
+// Mount the component
+const app = Vue.createApp(ConsultationForm);
+app.mount('.form');
+} // Close the else block

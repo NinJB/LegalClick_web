@@ -8,6 +8,7 @@ body{
   left: 50%;
   transform: translate(-50%, -50%);
   font-family: 'Arial', sans-serif;
+  font-size: 1em;
   background-color: #fff;
   padding: 20px;
   border-radius: 12px;
@@ -63,8 +64,8 @@ form {
 /* Headings */
 .signup h2 {
   text-align: center;
-  font-size: 1.4rem;
-  margin-bottom: 15px;
+  font-size: 1.2rem;
+  margin-bottom: 1em;
   color: #333;
 }
 
@@ -72,22 +73,22 @@ form {
 .signup label {
   display: block;
   margin: 6px 0 4px;
-  font-size: 0.9rem;
+  font-size: 0.8em;
 }
 
 .signup input,
 .signup select {
   width: 100%;
-  padding: 10px;
+  padding: 0.6em;
   margin-bottom: 12px;
   border: 1px solid #ccc;
   border-radius: 5px;
-  font-size: 0.95rem;
+  font-size: 0.8em;
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .signup input{
-  width: 31.5em;
+  width: 95%;
 }
 
 .signup input:focus,
@@ -95,14 +96,6 @@ form {
   outline: none;
   border-color: rgb(250, 127, 26);
   box-shadow: 0 0 4px rgba(250, 127, 26, 0.4);
-}
-
-/* Navigation Buttons */
-/* Button container (for both buttons) */
-.navigation-buttons {
-  display: flex;
-  gap: 10px; /* Space between buttons */
-  width: 100%; /* Makes sure buttons take up full width */
 }
 
 /* Button styling */
@@ -120,12 +113,6 @@ button {
   transition: background-color 0.4s ease, color 0.4s ease, box-shadow 0.3s ease;
   flex: 1; /* Makes the button take all available space */
 }
-
-/* Push second button to the right */
-.navigation-buttons button:last-child {
-  margin-left: auto; /* Pushes the last button to the right */
-}
-
 
 button::before {
   content: '';
@@ -214,3 +201,86 @@ button:hover {
 .password-rules li.invalid {
   color: red;
 }
+
+/********************************************************************************************************************/
+/*****************************************MOBILE RESPONSIVE*************************************************/
+/*PHONES*/
+@media screen and (max-width: 595px){
+  .signup__container{
+    position: static;
+    transform: scale(0.7);
+    margin: auto;
+    margin-top: -2em;
+    width: 90%;
+    height: 35em;
+    padding: 2em;
+    margin-left: -0.5em;
+    animation: none;
+  }
+
+  .signup__container input{
+    width: 90%;
+  }  
+  
+  .homepage__back-button {
+    transform: scale(0.8);
+    margin-left: -2em;
+    margin-bottom: -1em;
+  }
+}
+
+/*******************************************************************************************************************/
+/*TABLET*/
+@media screen and (min-width: 768px) and (max-width: 768px){
+  .signup__container{
+    position: static;
+    transform: scale(0.8);
+    margin: auto;
+    margin-top: -2em;
+    width: 90%;
+    height: 35em;
+    padding: 2em;
+    animation: none;
+  }
+
+  .signup__container input{
+    width: 90%;
+  }  
+  
+  .homepage__back-button {
+    transform: scale(0.8);
+    margin-left: -2em;
+    margin-bottom: -1em;
+  }
+}
+
+/*******************************************************************************************************************/
+/*SCREEN LAPTOPS // DESKTOPS*/
+@media screen and (min-width: 2560px) and (max-width: 2560px){
+  .signup__container{
+    position: static;
+    transform: scale(1.8);
+    margin: auto;
+    margin-top: 22em;
+    width: 90%;
+    height: 35em;
+    padding: 2em;
+    animation: none;
+  }
+
+  .signup__container input{
+    width: 90%;
+  }  
+  
+  .homepage__back-button {
+    transform: scale(2);
+    margin-left: 2em;
+    margin-bottom: 1em;
+  }
+
+  .signup input{
+    width: 95%;
+}
+}
+
+/*******************************************************************************************************************/

@@ -23,6 +23,17 @@ const app = Vue.createApp({
     toggleProfileMenu(state) {
       this.showProfileMenu = state;
     },
+    logout() {
+      // Clear all session data
+      sessionStorage.clear();
+      localStorage.clear();
+      // Clear browser history and redirect to login page
+      window.location.replace('/index.html');
+      // Clear all history entries
+      window.history.pushState(null, '', '/index.html');
+      window.history.pushState(null, '', '/index.html');
+      window.history.pushState(null, '', '/index.html');
+    },
     async fetchNotifications() {
       const baseUrl = window.API_BASE_URL;
       const res = await fetch(`${baseUrl}/notifications/secretary?user_id=${this.roleId}`, { headers: { 'Authorization': 'Bearer ' + sessionStorage.getItem('jwt') } });
@@ -44,12 +55,12 @@ const app = Vue.createApp({
           return `Atty. ${attorneyLast} has rejected your consultation.`;
         case 'approved':
           return `Atty. ${attorneyLast} has approved your consultation.`;
-        case 'application':
-          return `Secretary ${secretaryLast} has sent an application.`;
         case 'accepted':
           return `Atty. ${attorneyLast} has approved your application.`;
-        default:
-          return 'You have a new notification.';
+        case 'application_accepted':
+          return `Atty. ${notif.lawyer_first_name || ''} ${notif.lawyer_last_name || ''} has accepted your application.`;
+        case 'application_rejected':
+          return `Atty. ${notif.lawyer_first_name || ''} ${notif.lawyer_last_name || ''} has rejected your application.`;
       }
     },
     formatDate(dateStr) {
@@ -66,14 +77,17 @@ const app = Vue.createApp({
       e.stopPropagation();
       if (notif.notification_status === 'read') return;
       const baseUrl = window.API_BASE_URL;
-      await fetch(`${baseUrl}/notifications/${notif.notification_id}/read`, { method: 'PATCH' });
+      await fetch(`${baseUrl}/notifications/${notif.notification_id}/read`, { 
+        method: 'PATCH',
+        headers: { 'Authorization': 'Bearer ' + sessionStorage.getItem('jwt') }
+      });
       notif.notification_status = 'read';
       this.unreadCount = this.notifications.filter(n => n.notification_status !== 'read').length;
     },
     handleNotificationClick(notif) {
       if (notif.notification_purpose === 'request' || notif.notification_purpose === 'rejected' || notif.notification_purpose === 'approved' || notif.notification_purpose === 'accepted') {
         window.location.href = '/html/secretary/consultation.html';
-      } else if (notif.notification_purpose === 'application') {
+      } else if (notif.notification_purpose === 'application_rejected' || notif.notification_purpose === 'application_accepted') {
         window.location.href = '/html/secretary/lawyers.html';
       } else if (notif.notification_purpose === 'reschedule') {
         window.location.href = '/html/secretary/calendar.html';
@@ -87,6 +101,12 @@ const app = Vue.createApp({
     },
   },
   mounted() {
+    // Check if user is authenticated
+    const token = sessionStorage.getItem('jwt');
+    if (!token) {
+      window.location.href = '/index.html';
+      return;
+    }
     this.fetchNotifications();
   },
   template: `
@@ -127,7 +147,7 @@ const app = Vue.createApp({
             </div>
             <div v-show="showProfileMenu" class="profile-menu">
               <a href="/html/secretary/profile.html">Profile</a>
-              <a href="/index.html">Logout</a>
+              <a href="#" @click="logout">Logout</a>
             </div>
           </div>
         </div>
