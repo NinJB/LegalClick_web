@@ -175,7 +175,7 @@ const profile = Vue.createApp({
   
           <div class="profile__options">
             <a><button>Profile Information</button></a>
-            <a href="/html/lawyer/office-hours.html"><button>Lawyer Setup</button></a>
+            <a :href="lawyer.attorney_category === 'Public' ? '/html/lawyer/office-hour.html' : '/html/lawyer/specialization.html'"><button>Lawyer Setup</button></a>
             <a href="/html/lawyer/settings.html"><button>Change Password</button></a>
           </div>
         </section>

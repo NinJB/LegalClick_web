@@ -22,7 +22,11 @@ const app = Vue.createApp({
   },
   methods: {
     toggleProfileMenu(state) {
-      this.showProfileMenu = state;
+      if (typeof state === 'boolean') {
+        this.showProfileMenu = state;
+      } else {
+        this.showProfileMenu = !this.showProfileMenu;
+      }
     },
     logout() {
       // Clear all session data
@@ -165,9 +169,7 @@ const app = Vue.createApp({
             </div>
             </transition>
           </div>
-          <div class="profile-wrapper" 
-               @mouseenter="toggleProfileMenu(true)" 
-               @mouseleave="toggleProfileMenu(false)">
+          <div class="profile-wrapper" @click="toggleProfileMenu" tabindex="0">
             <div class="profile-icon">
               <img src="/images/profile-logo.png" class="nav-logo">
             </div>
@@ -215,3 +217,17 @@ const app = Vue.createApp({
 
 app.mount('.navigation');
 /*******************************************************************************************************************/
+
+// Add click outside logic
+window.addEventListener('click', function(e) {
+  const nav = document.querySelector('.navigation');
+  if (!nav) return;
+  const profileWrapper = nav.querySelector('.profile-wrapper');
+  const profileMenu = nav.querySelector('.profile-menu');
+  if (profileMenu && profileMenu.style.display !== 'none') {
+    if (!profileWrapper.contains(e.target)) {
+      const vueApp = app._instance && app._instance.proxy;
+      if (vueApp) vueApp.showProfileMenu = false;
+    }
+  }
+});

@@ -129,6 +129,17 @@ createApp({
       alert('No lawyer role_id found in token');
       return;
     }
+    // Fetch lawyer details to check attorney_category
+    const baseUrl = window.API_BASE_URL;
+    const lawyerRes = await fetch(`${baseUrl}/lawyer/by-role/${this.roleId}`, {
+      headers: { 'Authorization': 'Bearer ' + sessionStorage.getItem('jwt') }
+    });
+    if (lawyerRes.ok) {
+      const lawyerData = await lawyerRes.json();
+      if (lawyerData.attorney_category === 'Public') {
+        this.activeSection = 'officeHours';
+      }
+    }
     await this.fetchSpecializations();
     await this.fetchExistingSelections();
     await this.fetchServices();

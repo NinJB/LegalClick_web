@@ -170,28 +170,52 @@ const consultation = Vue.createApp({
     async openReviewModal(consult) {
       this.reviewError = '';
       this.reviewLoading = true;
-      this.reviewForm = {
-        review_id: consult._review ? consult._review.review_id : null,
-        consultation_id: consult.consultation_id || consult.id,
-        client_id: this.clientId,
-        lawyer_id: consult.lawyer_id,
-        rating: consult._review ? consult._review.rating : 5,
-        review_description: consult._review ? consult._review.review_description : ''
-      };
-      // If no review data, try to fetch (for safety)
-      if (!consult._review) {
-        try {
-          const baseUrl = window.API_BASE_URL;
-          const res = await fetch(`${baseUrl}/reviews/consultation/${this.reviewForm.consultation_id}/client/${this.clientId}`, {
-            headers: { 'Authorization': 'Bearer ' + sessionStorage.getItem('jwt') }
-          });
-          if (res.ok) {
-            const data = await res.json();
-            this.reviewForm.review_id = data.review_id;
-            this.reviewForm.rating = data.rating;
-            this.reviewForm.review_description = data.review_description;
-          }
-        } catch (e) { /* No review yet, that's fine */ }
+      // Always fetch the latest review from the backend
+      try {
+        const baseUrl = window.API_BASE_URL;
+        const res = await fetch(`${baseUrl}/reviews/consultation/${consult.consultation_id || consult.id}/client/${this.clientId}`, {
+          headers: { 'Authorization': 'Bearer ' + sessionStorage.getItem('jwt') }
+        });
+        if (res.ok) {
+          const data = await res.json();
+          this.reviewForm = {
+            review_id: data.review_id,
+            consultation_id: consult.consultation_id || consult.id,
+            client_id: this.clientId,
+            lawyer_id: consult.lawyer_id,
+            rating: data.rating,
+            review_description: data.review_description
+          };
+          consult._hasReview = true;
+          consult._review = {
+            review_id: data.review_id,
+            rating: data.rating,
+            review_description: data.review_description
+          };
+        } else {
+          // No review exists
+          this.reviewForm = {
+            review_id: null,
+            consultation_id: consult.consultation_id || consult.id,
+            client_id: this.clientId,
+            lawyer_id: consult.lawyer_id,
+            rating: 5,
+            review_description: ''
+          };
+          consult._hasReview = false;
+          consult._review = null;
+        }
+      } catch (e) {
+        this.reviewForm = {
+          review_id: null,
+          consultation_id: consult.consultation_id || consult.id,
+          client_id: this.clientId,
+          lawyer_id: consult.lawyer_id,
+          rating: 5,
+          review_description: ''
+        };
+        consult._hasReview = false;
+        consult._review = null;
       }
       this.reviewLoading = false;
       this.showReviewModal = true;
@@ -369,14 +393,6 @@ const consultation = Vue.createApp({
           Click to Attach Payment Receipt
         </div>
         <template v-if="consult.consultation_status === 'Completed'">
-          <div v-if="consult._hasReview && consult._review" class="review-summary" style="margin:0.5em 0 0.5em 0.5em; padding:0.5em; background:#f8f8f8; border-radius:6px;">
-            <div style="font-size:1.1em; font-weight:bold;">Your Review:</div>
-            <div style="margin:0.2em 0;">
-              <span v-for="n in 5" :key="n" class="review-star" :class="{ filled: n <= consult._review.rating }" style="color:#fbbf24; font-size:1.2em;">&#9733;</span>
-              <span style="margin-left:0.5em;">{{ consult._review.rating }} / 5</span>
-            </div>
-            <div style="margin-top:0.2em; color:#444;">{{ consult._review.review_description }}</div>
-          </div>
           <button @click="openReviewModal(consult)" class="review-btn">{{ consult._hasReview ? 'Edit Review' : 'Add Review' }}</button>
         </template>
       </div>

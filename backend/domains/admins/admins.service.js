@@ -71,7 +71,7 @@ export async function getAdminbyRole(req, res) {
       FROM users u
       JOIN admin a ON u.role_id = a.admin_id
       WHERE u.role_id = $1
-        AND u.role IN ('PAO-Admin','OLBA-Admin')
+        AND u.role IN ('paoadmin','olbaadmin')
     `, [roleId]);
     if (!result.rows.length) return res.status(404).json({ error: 'Admin not found' });
     res.json(result.rows[0]);

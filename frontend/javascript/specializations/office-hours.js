@@ -20,27 +20,57 @@ createApp({
         </div>
         <!-- Office Hours Section -->
         <div v-show="activeSection === 'officeHours'">
-          <h2>Set Your Office Hours</h2>
+          <h2>Office Hours</h2>
           <div>
-            <label><span>*</span>Morning Start: <span>Required</span><input type="time" v-model="officeHours.morning_start" :disabled="!isEditingAvailability" /></label><br/>
-            <label><span>*</span>Morning End: <span>Required</span><input type="time" v-model="officeHours.morning_end" :disabled="!isEditingAvailability" /></label><br/>
-            <label><span>*</span>Evening Start: <span>Required</span><input type="time" v-model="officeHours.evening_start" :disabled="!isEditingAvailability" /></label><br/>
-            <label><span>*</span>Evening End: <span>Required</span><input type="time" v-model="officeHours.evening_end" :disabled="!isEditingAvailability" /></label><br/>
-            <label><span>*</span>Workday Start: <span>Required</span>
-              <select v-model="officeHours.workday_start" :disabled="!isEditingAvailability">
-                <option v-for="day in days" :key="day">{{ day }}</option>
-              </select>
-            </label><br/>
-            <label><span>*</span>Workday End: <span>Required</span>
-              <select v-model="officeHours.workday_end" :disabled="!isEditingAvailability">
-                <option v-for="day in days" :key="day">{{ day }}</option>
-              </select>
-            </label><br/>
-            <button v-if="!isEditingAvailability" @click="isEditingAvailability = true">Edit</button>
-            <button v-else @click="saveAvailability">Save</button>
+            <div>
+              <label>Morning Start: <input type="time" v-model="officeHours.morning_start" disabled /></label><br/>
+              <label>Morning End: <input type="time" v-model="officeHours.morning_end" disabled /></label><br/>
+              <label>Evening Start: <input type="time" v-model="officeHours.evening_start" disabled /></label><br/>
+              <label>Evening End: <input type="time" v-model="officeHours.evening_end" disabled /></label><br/>
+              <label>Workday Start:
+                <select v-model="officeHours.workday_start" disabled>
+                  <option v-for="day in days" :key="day">{{ day }}</option>
+                </select>
+              </label><br/>
+              <label>Workday End:
+                <select v-model="officeHours.workday_end" disabled>
+                  <option v-for="day in days" :key="day">{{ day }}</option>
+                </select>
+              </label><br/>
+            </div>
+            <div v-if="isClient && officeHours.morning_start && officeHours.evening_end">
+              <button class="btn btn-primary" @click="openBookPopup">Book Appointment</button>
+            </div>
+            <div v-if="pastOfficeHours.length && isClient">
+              <h3>Past Office Hours</h3>
+              <ul>
+                <li v-for="(past, idx) in pastOfficeHours" :key="idx">
+                  {{ past.morning_start }}-{{ past.morning_end }}, {{ past.evening_start }}-{{ past.evening_end }}, {{ past.workday_start }}-{{ past.workday_end }}
+                </li>
+              </ul>
+            </div>
           </div>
         </div>
       </section>
+      <!-- Book Consultation Popup -->
+      <div v-if="showBookPopup" class="modern-popup-overlay">
+        <div class="modern-popup">
+          <h2>Book a Consultation with a Public Attorney</h2>
+          <p>Please prepare the following before sending a request:</p>
+          <ol>
+            <li>Valid ID</li>
+            <li>Recent Paycheck or Certificate of Indigency</li>
+            <li>Prepare for a short interview at the Public Attorneys' Office.</li>
+          </ol>
+          <div class="disclaimer">
+            <strong>Disclaimer:</strong> The Public Attorneys' Office's services are all free, but they do not offer online consultations.
+          </div>
+          <div class="popup-actions">
+            <button class="btn btn-primary" @click="proceedBookConsultation">Book Consultation</button>
+            <button class="btn btn-secondary" @click="closeBookPopup">Cancel</button>
+          </div>
+        </div>
+      </div>
     </div>
   `,
   data() {
@@ -54,9 +84,12 @@ createApp({
         workday_start: 'Monday',
         workday_end: 'Friday'
       },
+      pastOfficeHours: [], // Store past office hours
       isEditingAvailability: false,
       days: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
-      activeSection: 'officeHours'
+      activeSection: 'officeHours',
+      isClient: false, // Track if current user is a client
+      showBookPopup: false // Popup for booking
     };
   },
   async mounted() {
@@ -68,11 +101,15 @@ createApp({
     }
     const payload = window.decodeJWT ? window.decodeJWT(token) : JSON.parse(atob(token.split('.')[1]));
     this.roleId = payload && payload.role_id;
+    this.isClient = payload && payload.role === 'Client';
     if (!this.roleId) {
-      alert('No lawyer role_id found in token');
+      alert('No role_id found in token');
       return;
     }
     await this.fetchExistingSelections();
+    if (this.isClient) {
+      await this.fetchPastOfficeHours();
+    }
   },
   methods: {
     toggleSection(section) {
@@ -110,6 +147,27 @@ createApp({
       } else {
         alert('Error saving availability.');
       }
+    },
+    async fetchPastOfficeHours() {
+      // Fetch past office hours for this lawyer (if API exists)
+      const baseUrl = window.API_BASE_URL;
+      const res = await fetch(`${baseUrl}/lawyer/${this.roleId}/past-availability`, {
+        headers: { 'Authorization': 'Bearer ' + sessionStorage.getItem('jwt') }
+      });
+      if (res.ok) {
+        this.pastOfficeHours = await res.json();
+      }
+    },
+    openBookPopup() {
+      this.showBookPopup = true;
+    },
+    closeBookPopup() {
+      this.showBookPopup = false;
+    },
+    proceedBookConsultation() {
+      this.showBookPopup = false;
+      // Redirect to free consultation form for this lawyer
+      window.location.href = `/html/client/consultation-free.html?lawyer_id=${this.roleId}&free=1`;
     }
   }
 }).mount('.setup');

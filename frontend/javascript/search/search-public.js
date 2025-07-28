@@ -147,17 +147,6 @@ const lawyerManagement = Vue.createApp({
         setFilter(filter) {
             this.activeFilter = filter;
         },
-        openBookPopup() {
-            this.showBookPopup = true;
-        },
-        closeBookPopup() {
-            this.showBookPopup = false;
-        },
-        proceedBookConsultation() {
-            this.showBookPopup = false;
-            // Place your booking logic here, or emit an event, etc.
-            alert('Booking request sent!');
-        }
     },
     mounted() {
         this.fetchLawyers();
@@ -292,30 +281,8 @@ const lawyerManagement = Vue.createApp({
                 <button v-if="selectedLawyer.account_status === 'Activated'" class="btn btn-warning" @click="deactivateLawyer(selectedLawyer.lawyer_id)">Deactivate</button>
                 <button v-if="selectedLawyer.account_status === 'Deactivated'" class="btn btn-success" @click="activateLawyer(selectedLawyer.lawyer_id)">Activate</button>
                 <button class="btn btn-secondary" @click="closeModal">Close</button>
-                <!-- Book Consultation Button for Public Attorney -->
-                <button v-if="selectedLawyer.account_status === 'Activated' && selectedLawyer.attorney_category === 'Public'" class="btn btn-primary" @click="openBookPopup">Book Consultation</button>
                 </div>
             </div>
-            </div>
-
-            <!-- Book Consultation Popup -->
-            <div v-if="showBookPopup" class="modern-popup-overlay">
-                <div class="modern-popup">
-                    <h2>Book a Consultation with a Public Attorney</h2>
-                    <p>Please prepare the following before sending a request:</p>
-                    <ol>
-                        <li>Valid ID</li>
-                        <li>Recent Paycheck or Certificate of Indigency</li>
-                        <li>Prepare for a short interview at the Public Attorneys' Office.</li>
-                    </ol>
-                    <div class="disclaimer">
-                        <strong>Disclaimer:</strong> The Public Attorneys' Office's services are all free, but they do not offer online consultations.
-                    </div>
-                    <div class="popup-actions">
-                        <button class="btn btn-primary" @click="proceedBookConsultation">Book Consultation</button>
-                        <button class="btn btn-secondary" @click="closeBookPopup">Cancel</button>
-                    </div>
-                </div>
             </div>
         </div>
     `
