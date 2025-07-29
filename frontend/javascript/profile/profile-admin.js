@@ -32,18 +32,26 @@ const adminProfile = Vue.createApp({
       }
       const payload = window.decodeJWT ? window.decodeJWT(token) : JSON.parse(atob(token.split('.')[1]));
       this.roleId = payload && payload.role_id;
+      
+      // Fetch the specific admin's data using role_id (which is actually admin_id)
       const res = await fetch(`${window.API_BASE_URL}/admin/by-role/${this.roleId}`, {
         headers: { 'Authorization': 'Bearer ' + sessionStorage.getItem('jwt') }
       });
-      const data = await res.json();
-      this.admin = data;
-      Object.assign(this.form, {
-        username: data.username,
-        first_name: data.first_name,
-        last_name: data.last_name,
-        email: data.email,
-        contact_number: data.contact_number
-      });
+      
+      if (res.ok) {
+        const data = await res.json();
+        this.admin = data;
+        Object.assign(this.form, {
+          username: data.username,
+          first_name: data.first_name,
+          last_name: data.last_name,
+          email: data.email,
+          contact_number: data.contact_number
+        });
+      } else {
+        console.error('Failed to fetch admin data');
+        alert('Failed to load admin profile data');
+      }
     },
     methods: {
       async checkUsername() {

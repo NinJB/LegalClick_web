@@ -71,7 +71,7 @@ export async function getAdminbyRole(req, res) {
       FROM users u
       JOIN admin a ON u.role_id = a.admin_id
       WHERE u.role_id = $1
-        AND u.role IN ('paoadmin','olbaadmin')
+        AND u.role IN ('PAO-Admin','OLBA-Admin')
     `, [roleId]);
     if (!result.rows.length) return res.status(404).json({ error: 'Admin not found' });
     res.json(result.rows[0]);
@@ -189,10 +189,18 @@ export async function addAdmin(req, res) {
 export async function getAdminsByRole(req, res) {
   const { roleId } = req.params;
   try {
+    console.log('Getting admins for roleId:', roleId);
+    
     // Get the role of the requesting admin
     const roleRes = await client.query('SELECT role FROM admin WHERE admin_id = $1', [roleId]);
-    if (roleRes.rows.length === 0) return res.status(404).json({ error: 'Admin not found' });
+    if (roleRes.rows.length === 0) {
+      console.log('Admin not found for roleId:', roleId);
+      return res.status(404).json({ error: 'Admin not found' });
+    }
+    
     const adminRole = roleRes.rows[0].role;
+    console.log('Admin role found:', adminRole);
+    
     // Get all admins with the same role
     const adminsRes = await client.query(
       `SELECT a.admin_id, a.first_name, a.last_name, a.email, a.contact_number, a.username
@@ -200,9 +208,11 @@ export async function getAdminsByRole(req, res) {
        WHERE a.role = $1`,
       [adminRole]
     );
+    
+    console.log('Found admins with same role:', adminsRes.rows);
     res.json(adminsRes.rows);
   } catch (e) {
-    console.error(e);
+    console.error('Error in getAdminsByRole:', e);
     res.status(500).json({ error: 'Server error' });
   }
 }

@@ -101,6 +101,8 @@ Vue.createApp({
     if (token) {
       const payload = window.decodeJWT ? window.decodeJWT(token) : JSON.parse(atob(token.split('.')[1]));
       roleId = payload && payload.role_id;
+      console.log('JWT payload:', payload);
+      console.log('Extracted roleId:', roleId);
     }
     return {
       activeForm: 'admin',
@@ -149,8 +151,17 @@ Vue.createApp({
     },
     async getRoleAdmins() {
       try {
-        const res = await fetch(`${window.API_BASE_URL}/admins/role/${this.roleId}`, { headers: { 'Authorization': 'Bearer ' + sessionStorage.getItem('jwt') } });
+        console.log('Fetching admins with roleId:', this.roleId);
+        const res = await fetch(`${window.API_BASE_URL}/admins/by-role/${this.roleId}`, { headers: { 'Authorization': 'Bearer ' + sessionStorage.getItem('jwt') } });
+        
+        if (!res.ok) {
+          console.error('Failed to fetch admins:', res.status, res.statusText);
+          return;
+        }
+        
         const admins = await res.json();
+        console.log('Fetched admins:', admins);
+        
         // Add editing state to each admin
         this.roleAdmins = admins.map(admin => ({
           ...admin,
@@ -163,6 +174,8 @@ Vue.createApp({
             contact_number: admin.contact_number
           }
         }));
+        
+        console.log('Processed roleAdmins:', this.roleAdmins);
       } catch (error) {
         console.error('Error fetching admins:', error);
       }
