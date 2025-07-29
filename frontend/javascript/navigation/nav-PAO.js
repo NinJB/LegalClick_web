@@ -68,7 +68,7 @@ const app = Vue.createApp({
           <div class="notification-icon"><img src="/images/notif.png" class="nav-logo"></div>
           <div class="profile-wrapper" @click="handleProfileClick">
             <div class="profile-icon"><img src="/images/profile-logo.png" class="nav-logo"></div>
-            <div v-show="showProfileMenu" class="profile-menu">
+            <div :class="['profile-menu', { 'show': showProfileMenu }]">
               <a href="/html/admins/profile.html">Profile</a>
               <a href="#" @click="logout">Logout</a>
             </div>

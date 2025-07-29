@@ -14,16 +14,38 @@ Vue.createApp({
         <table>
           <thead>
             <tr>
-              <th>Username</th><th>Name</th><th>Email</th><th>Contact</th><th>Status</th>
+              <th>Username</th><th>Name</th><th>Email</th><th>Contact</th><th>Status</th><th>Actions</th>
             </tr>
           </thead>
           <tbody>
             <tr v-for="a in roleAdmins" :key="a.admin_id">
-              <td>{{ a.username }}</td>
-              <td>{{ a.first_name }} {{ a.last_name }}</td>
-              <td>{{ a.email }}</td>
-              <td>{{ a.contact_number }}</td>
+              <td>
+                <span v-if="!a.isEditing">{{ a.username }}</span>
+                <input v-else v-model="a.editForm.username" class="edit-input" />
+              </td>
+              <td>
+                <span v-if="!a.isEditing">{{ a.first_name }} {{ a.last_name }}</span>
+                <div v-else class="name-inputs">
+                  <input v-model="a.editForm.first_name" class="edit-input" placeholder="First Name" />
+                  <input v-model="a.editForm.last_name" class="edit-input" placeholder="Last Name" />
+                </div>
+              </td>
+              <td>
+                <span v-if="!a.isEditing">{{ a.email }}</span>
+                <input v-else v-model="a.editForm.email" type="email" class="edit-input" />
+              </td>
+              <td>
+                <span v-if="!a.isEditing">{{ a.contact_number }}</span>
+                <input v-else v-model="a.editForm.contact_number" class="edit-input" />
+              </td>
               <td>Activated</td>
+              <td>
+                <button v-if="!a.isEditing" @click="startEdit(a)" class="edit-btn">Edit</button>
+                <div v-else class="action-buttons">
+                  <button @click="saveEdit(a)" class="save-btn">Save</button>
+                  <button @click="cancelEdit(a)" class="cancel-btn">Cancel</button>
+                </div>
+              </td>
             </tr>
           </tbody>
         </table>
@@ -128,10 +150,65 @@ Vue.createApp({
     async getRoleAdmins() {
       try {
         const res = await fetch(`${window.API_BASE_URL}/admins/role/${this.roleId}`, { headers: { 'Authorization': 'Bearer ' + sessionStorage.getItem('jwt') } });
-        this.roleAdmins = await res.json();
+        const admins = await res.json();
+        // Add editing state to each admin
+        this.roleAdmins = admins.map(admin => ({
+          ...admin,
+          isEditing: false,
+          editForm: {
+            username: admin.username,
+            first_name: admin.first_name,
+            last_name: admin.last_name,
+            email: admin.email,
+            contact_number: admin.contact_number
+          }
+        }));
       } catch (error) {
         console.error('Error fetching admins:', error);
       }
+    },
+    startEdit(admin) {
+      admin.isEditing = true;
+      // Reset edit form to current values
+      admin.editForm = {
+        username: admin.username,
+        first_name: admin.first_name,
+        last_name: admin.last_name,
+        email: admin.email,
+        contact_number: admin.contact_number
+      };
+    },
+    async saveEdit(admin) {
+      try {
+        const response = await fetch(`${window.API_BASE_URL}/admin/update/${admin.admin_id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + sessionStorage.getItem('jwt') },
+          body: JSON.stringify(admin.editForm)
+        });
+        
+        if (response.ok) {
+          // Update the admin data with the new values
+          Object.assign(admin, admin.editForm);
+          admin.isEditing = false;
+          alert('Admin updated successfully');
+        } else {
+          alert('Failed to update admin');
+        }
+      } catch (error) {
+        console.error('Error updating admin:', error);
+        alert('Error updating admin');
+      }
+    },
+    cancelEdit(admin) {
+      admin.isEditing = false;
+      // Reset edit form to original values
+      admin.editForm = {
+        username: admin.username,
+        first_name: admin.first_name,
+        last_name: admin.last_name,
+        email: admin.email,
+        contact_number: admin.contact_number
+      };
     },
     async addSpecialization() {
       try {
@@ -177,3 +254,70 @@ Vue.createApp({
     this.getSpecializations();
   }
 }).mount('.maintenance');
+
+// Add CSS styles for the edit functionality
+const style = document.createElement('style');
+style.textContent = `
+.edit-input {
+  width: 100%;
+  padding: 4px 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.name-inputs {
+  display: flex;
+  gap: 4px;
+}
+
+.name-inputs .edit-input {
+  flex: 1;
+}
+
+.edit-btn, .save-btn, .cancel-btn {
+  padding: 4px 8px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  margin: 0 2px;
+}
+
+.edit-btn {
+  background-color: #007bff;
+  color: white;
+}
+
+.save-btn {
+  background-color: #28a745;
+  color: white;
+}
+
+.cancel-btn {
+  background-color: #dc3545;
+  color: white;
+}
+
+.edit-btn:hover {
+  background-color: #0056b3;
+}
+
+.save-btn:hover {
+  background-color: #218838;
+}
+
+.cancel-btn:hover {
+  background-color: #c82333;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 4px;
+}
+
+table td {
+  vertical-align: middle;
+}
+`;
+document.head.appendChild(style);

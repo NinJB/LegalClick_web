@@ -197,7 +197,7 @@ const app = Vue.createApp({
             <div class="profile-icon">
               <img src="/images/profile-logo.png" class="nav-logo">
             </div>
-            <div v-show="showProfileMenu" class="profile-menu">
+            <div :class="['profile-menu', { 'show': showProfileMenu }]">
               <a :href="attorneyCategory === 'Public' ? '/html/lawyer/profile-public.html' : '/html/lawyer/profile.html'">Profile</a>
               <a href="#" @click="logout">Logout</a>
             </div>

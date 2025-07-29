@@ -54,6 +54,7 @@ body {
   .profile-wrapper {
     position: relative;
     cursor: pointer;
+    user-select: none;
   }
   
   .profile-menu {
@@ -67,12 +68,24 @@ body {
     display: flex;
     flex-direction: column;
     width: 160px;
+    z-index: 1001;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+    transition: opacity 0.2s ease, visibility 0.2s ease, transform 0.2s ease;
+  }
+  
+  .profile-menu.show {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
   }
   
   .profile-menu a {
     padding: 0.5rem 1rem;
     color: #333;
     text-decoration: none;
+    transition: background-color 0.2s ease;
   }
   
   .profile-menu a:hover {
@@ -362,5 +375,48 @@ body {
 /* Remove any hover-based display for the profile dropdown */
 .profile-wrapper:hover .profile-menu {
   display: none !important;
+}
+
+/* Ensure profile menu is properly positioned and styled for click interaction */
+.profile-wrapper {
+  position: relative;
+  cursor: pointer;
+  user-select: none;
+}
+
+.profile-menu {
+  position: absolute;
+  top: 120%;
+  right: 0;
+  background-color: white;
+  border-radius: 6px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+  padding: 0.5rem 0;
+  display: flex;
+  flex-direction: column;
+  width: 160px;
+  z-index: 1001;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-10px);
+  transition: opacity 0.2s ease, visibility 0.2s ease, transform 0.2s ease;
+}
+
+.profile-menu.show {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.profile-menu a {
+  padding: 0.5rem 1rem;
+  color: #333;
+  text-decoration: none;
+  transition: background-color 0.2s ease;
+}
+
+.profile-menu a:hover {
+  background-color: rgb(250, 127, 26);
+  color: white;
 }
   

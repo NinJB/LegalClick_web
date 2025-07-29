@@ -20,8 +20,7 @@ const adminProfile = Vue.createApp({
           email: '',
           contact_number: ''
         },
-        usernameError: false,
-        adminsList: [] // Add this for the list of admins with the same role
+        usernameError: false
       };
     },
     async created() {
@@ -45,13 +44,6 @@ const adminProfile = Vue.createApp({
         email: data.email,
         contact_number: data.contact_number
       });
-      // Fetch the list of admins with the same role
-      const listRes = await fetch(`${window.API_BASE_URL}/admins/by-role/${this.roleId}`, {
-        headers: { 'Authorization': 'Bearer ' + sessionStorage.getItem('jwt') }
-      });
-      if (listRes.ok) {
-        this.adminsList = await listRes.json();
-      }
     },
     methods: {
       async checkUsername() {
@@ -122,17 +114,6 @@ const adminProfile = Vue.createApp({
             <div><label>Email</label><input v-model="form.email" type="email" :disabled="!isEditing" class="form-input" /></div>
             <div><label>Contact Number</label><input v-model="form.contact_number" :disabled="!isEditing" class="form-input" /></div>
           </form>
-        </section>
-        <section class="profile-section">
-          <h2 class="section-title">Admins with Same Role</h2>
-          <ul v-if="adminsList.length">
-            <li v-for="a in adminsList" :key="a.admin_id">
-              <strong>{{ a.first_name }} {{ a.last_name }}</strong> ({{ a.username }})<br>
-              Email: {{ a.email }}<br>
-              Contact: {{ a.contact_number }}
-            </li>
-          </ul>
-          <div v-else>No other admins found for your role.</div>
         </section>
       </div>
     `

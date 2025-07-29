@@ -189,7 +189,7 @@ const app = Vue.createApp({
             <div class="profile-icon">
               <img src="/images/profile-logo.png" class="nav-logo">
             </div>
-            <div v-show="showProfileMenu" class="profile-menu">
+            <div :class="['profile-menu', { 'show': showProfileMenu }]">
               <a href="/html/client/profile.html">Profile</a>
               <a href="#" @click="logout">Logout</a>
             </div>
