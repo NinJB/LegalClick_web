@@ -24,8 +24,21 @@ const app = Vue.createApp({
     };
   },
   methods: {
-    toggleProfileMenu(state) {
-      this.showProfileMenu = state;
+    toggleProfileMenu() {
+      this.showProfileMenu = !this.showProfileMenu;
+    },
+    closeProfileMenu() {
+      this.showProfileMenu = false;
+    },
+    handleProfileClick(event) {
+      event.stopPropagation();
+      this.toggleProfileMenu();
+    },
+    handleDocumentClick(event) {
+      const profileWrapper = event.target.closest('.profile-wrapper');
+      if (!profileWrapper) {
+        this.closeProfileMenu();
+      }
     },
     logout() {
       // Clear all session data
@@ -142,6 +155,13 @@ const app = Vue.createApp({
     }
     this.fetchNotifications();
     this.fetchConsultationCount();
+    
+    // Add document click listener to close profile menu when clicking outside
+    document.addEventListener('click', this.handleDocumentClick);
+  },
+  beforeUnmount() {
+    // Clean up event listener
+    document.removeEventListener('click', this.handleDocumentClick);
   },
   template: `
     <div class="layout">
@@ -173,9 +193,7 @@ const app = Vue.createApp({
             </div>
             </transition>
           </div>
-          <div class="profile-wrapper" 
-               @mouseenter="toggleProfileMenu(true)" 
-               @mouseleave="toggleProfileMenu(false)">
+          <div class="profile-wrapper" @click="handleProfileClick">
             <div class="profile-icon">
               <img src="/images/profile-logo.png" class="nav-logo">
             </div>
